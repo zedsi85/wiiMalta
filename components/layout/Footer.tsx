@@ -17,25 +17,25 @@ const cols: { h: string; items: { label: string; href: string }[] }[] = [
       { label: "Events", href: "/events" },
       { label: "Gallery", href: "/#gallery" },
       { label: "About", href: "/about" },
-      { label: "Community", href: "/community" },
+      { label: "Team", href: "/team" },
     ],
   },
   {
-    h: "Community",
+    h: "Engage",
+    items: [
+      { label: "Community", href: "/community" },
+      { label: "Partners", href: "/partners" },
+      { label: "Contact", href: "/partners#contact" },
+      { label: "FAQ", href: "#" },
+    ],
+  },
+  {
+    h: "Follow",
     items: [
       { label: "Instagram", href: "#" },
-      { label: "Telegram", href: "#" },
+      { label: "TikTok", href: "#" },
       { label: "WhatsApp", href: "#" },
       { label: "Spotify", href: "#" },
-    ],
-  },
-  {
-    h: "Support",
-    items: [
-      { label: "FAQ", href: "#" },
-      { label: "Refunds", href: "#" },
-      { label: "Contact", href: "/partners" },
-      { label: "Partnerships", href: "/partners" },
     ],
   },
 ];
@@ -125,8 +125,7 @@ export function Footer() {
               </span>
             </div>
             <p style={{ marginTop: 16, maxWidth: "30ch", color: "var(--text-muted)", fontSize: "0.875rem", lineHeight: 1.6 }}>
-              Born from Mediterranean event experience in Tunisia — now curating nights across Malta.
-              Sound, people, places — connected after dark.
+              Curated nights across Malta. Built around sun, sea, sound, and community.
             </p>
           </div>
           {cols.map((c) => (

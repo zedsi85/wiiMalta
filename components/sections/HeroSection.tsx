@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { LogoFormation } from "@/components/brand/LogoFormation";
 import { getFeatured } from "@/lib/events";
@@ -11,10 +12,11 @@ import { pad, prefersReducedMotion } from "@/lib/utils";
 // it client-side and only when the device can comfortably handle it.
 const FluidBackground = dynamic(() => import("@/components/webgl/FluidBackground"), { ssr: false });
 
-// Replace this with real Tunisia event footage (see public/videos/README.md)
+// Atmospheric event footage. Presented as energy/proof — the credibility story
+// lives on /about. (See public/videos/README.md)
 const heroVideoSrc = "/videos/tunisia-event-footage.mp4";
 
-/** Chapter 01 — Enter the Night. Real Tunisia footage + atmospheric overlay. */
+/** Chapter 01 — Malta After Dark. Video + overlay + visible logo formation. */
 export function HeroSection() {
   const featured = getFeatured();
   const target = new Date(featured.iso).getTime();
@@ -22,7 +24,6 @@ export function HeroSection() {
   const [overlay, setOverlay] = useState(false);
 
   useEffect(() => {
-    // Only layer the Three.js overlay on capable, motion-friendly viewports.
     setOverlay(!prefersReducedMotion() && window.innerWidth >= 768);
   }, []);
 
@@ -53,7 +54,7 @@ export function HeroSection() {
     <section id="hero" className="chapter" data-mood="hero">
       {/* ---- Layered hero backdrop ---- */}
       <div className="hero-media" aria-hidden="true">
-        {/* Layer 1 — real Tunisia event footage */}
+        {/* Layer 1 — event footage */}
         <video
           className="hero-video"
           autoPlay
@@ -89,51 +90,46 @@ export function HeroSection() {
         <div className="hero-vignette" />
       </div>
 
-      {/* Brand-formation moment: Sun + Sea + Sound → WII */}
-      <div className="hero-logo">
-        <LogoFormation variant="hero" autoplay showTagline />
-      </div>
-
-      {/* ---- Layer 4 — content ---- */}
+      {/* ---- Layer 4 — content (sits below the navbar via padding-top) ---- */}
       <div className="hero-inner">
-        <div className="hero-badges" data-rise>
-          <span className="hero-badge">
-            <i />
-            Established event experience in Tunisia · Now launching in Malta
-          </span>
-          <span className="hero-badge ghost">Mediterranean event specialists</span>
+        {/* Brand-formation moment: Sun + Sea + Sound → WII */}
+        <div className="hero-logo-inline">
+          <LogoFormation variant="hero" autoplay showTagline />
         </div>
 
         <div className="eyebrow" data-rise>
-          Mediterranean event collective · Tunisia → Malta
+          Curated nights · Island venues · Malta
         </div>
         <h1 className="hero-title">
           <span className="line">
             <span data-rise style={{ "--i": 0 } as React.CSSProperties}>
-              From Tunisia
+              Malta
             </span>
           </span>
           <span className="line">
             <span data-rise style={{ "--i": 1 } as React.CSSProperties}>
-              to Malta.
+              After Dark.
             </span>
           </span>
         </h1>
         <p className="hero-sub" data-rise>
-          A Mediterranean event collective bringing proven nightlife operations, real event energy,
-          digital ticketing, and community-first experiences to Malta.
+          Curated music experiences, island venues, digital ticketing, and community-driven nights
+          across Malta.
         </p>
         <div className="hero-cta" data-rise>
           <MagneticButton href="/events" className="btn btn-primary btn-lg">
             View Upcoming Events
           </MagneticButton>
-          <MagneticButton href="#story" className="btn btn-ghost-line btn-lg">
-            Watch Our Story
+          <MagneticButton href="/events" className="btn btn-ghost-line btn-lg">
+            Buy Tickets
           </MagneticButton>
-          <MagneticButton href="/partners" className="btn btn-ghost-line btn-lg">
-            Partner With Us
+          <MagneticButton href="/community" className="btn btn-ghost-line btn-lg">
+            Join the Community
           </MagneticButton>
         </div>
+        <Link href="/#gallery" className="hero-watch" data-cursor>
+          ▶ Watch Moments
+        </Link>
         <div className="hero-count" data-rise>
           <span className="count-label">Next drop · {featured.title}</span>
           <div className="count">

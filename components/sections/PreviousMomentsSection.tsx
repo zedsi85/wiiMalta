@@ -11,13 +11,14 @@ export function PreviousMomentsSection() {
     <section id="gallery" className="chapter" data-mood="gallery">
       <div className="chapter-head">
         <div className="eyebrow" data-rise>
-          Chapter 06 · The archive · Real crowds, real footage
+          Chapter 04 · The archive
         </div>
         <h2 className="big" data-rise>
           Previous Moments
-          <br />
-          From Tunisia
         </h2>
+        <p data-rise style={{ marginTop: 20, maxWidth: "46ch", color: "var(--fog)", fontSize: "1.0625rem", lineHeight: 1.6 }}>
+          Real moments from our Mediterranean event experience.
+        </p>
       </div>
       <div className="gallery-track-wrap">
         <div className="gallery-track" id="galleryTrack">

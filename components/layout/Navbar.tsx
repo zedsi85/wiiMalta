@@ -10,8 +10,9 @@ const LINKS: { label: string; href: string }[] = [
   { label: "Events", href: "/events" },
   { label: "Community", href: "/community" },
   { label: "Gallery", href: "/#gallery" },
-  { label: "Partners", href: "/partners" },
   { label: "About", href: "/about" },
+  { label: "Partners", href: "/partners" },
+  { label: "Contact", href: "/partners#contact" },
 ];
 
 /**

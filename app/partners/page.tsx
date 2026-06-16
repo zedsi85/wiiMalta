@@ -67,7 +67,7 @@ export default function PartnersPage() {
       </Section>
 
       {/* Contact form */}
-      <Section max="var(--container-narrow)">
+      <Section id="contact" max="var(--container-narrow)">
         <div style={{ background: "var(--surface-2)", border: "1px solid var(--border-soft)", borderRadius: "var(--radius-xl)", padding: "clamp(28px,4vw,52px)" }}>
           <SectionLabel style={{ marginBottom: 14 }}>Start a conversation</SectionLabel>
           <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "clamp(1.8rem,4vw,3rem)", textTransform: "uppercase", letterSpacing: "-0.02em", color: "var(--bone)" }}>

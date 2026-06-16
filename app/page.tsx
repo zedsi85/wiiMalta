@@ -3,16 +3,11 @@
 import { useEffect, useRef } from "react";
 import "./cinema.css";
 import { HeroSection } from "@/components/sections/HeroSection";
-import { TunisiaStorySection } from "@/components/sections/TunisiaStorySection";
 import { UpcomingEventsSection } from "@/components/sections/UpcomingEventsSection";
-import { BrandStatementSection } from "@/components/sections/BrandStatementSection";
-import { EventFormatsSection } from "@/components/sections/EventFormatsSection";
 import { TicketingExperienceSection } from "@/components/sections/TicketingExperienceSection";
 import { CommunityAccessSection } from "@/components/sections/CommunityAccessSection";
 import { PreviousMomentsSection } from "@/components/sections/PreviousMomentsSection";
-import { FoundersSection } from "@/components/sections/FoundersSection";
-import { MaltaChapterSection } from "@/components/sections/MaltaChapterSection";
-import { PartnersSection } from "@/components/sections/PartnersSection";
+import { EventFormatsSection } from "@/components/sections/EventFormatsSection";
 import { FinalCTASection } from "@/components/sections/FinalCTASection";
 import { buildHomeTimeline, createRevealScanner } from "@/lib/animations";
 import { getLenis } from "@/lib/lenis";
@@ -82,16 +77,11 @@ export default function HomePage() {
   return (
     <main ref={scope}>
       <HeroSection />
-      <TunisiaStorySection />
       <UpcomingEventsSection />
-      <BrandStatementSection />
-      <EventFormatsSection />
       <TicketingExperienceSection />
       <CommunityAccessSection />
       <PreviousMomentsSection />
-      <FoundersSection />
-      <MaltaChapterSection />
-      <PartnersSection />
+      <EventFormatsSection />
       <FinalCTASection />
     </main>
   );

@@ -310,7 +310,7 @@ export const formatTints = [
  * operations, used as proof of experience. `[label, isVideo]`.
  */
 export const gallery: [string, boolean][] = [
-  ["Tunisia Event Footage", true],
+  ["Real footage", true],
   ["Crowd Energy", false],
   ["Stage & Lighting", false],
   ["Behind the Scenes", true],

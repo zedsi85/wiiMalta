@@ -63,16 +63,19 @@ html.reduced .finale-title .line span[data-rise] {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   max-width: var(--container-wide);
   margin: 0 auto;
-  padding-bottom: clamp(48px, 7vh, 110px);
+  padding-top: clamp(118px, 16vh, 172px);
+  padding-bottom: clamp(40px, 7vh, 96px);
 }
 .hero-inner {
   position: relative;
 }
 #hero .eyebrow {
-  margin-bottom: 22px;
+  margin-bottom: 18px;
   display: block;
 }
 .hero-title {
@@ -92,8 +95,8 @@ html.reduced .finale-title .line span[data-rise] {
   display: block;
 }
 .hero-sub {
-  max-width: 44ch;
-  margin-top: 28px;
+  max-width: 46ch;
+  margin: 26px auto 0;
   font-size: clamp(1rem, 1.6vw, 1.25rem);
   color: var(--sand);
   line-height: 1.55;
@@ -101,12 +104,31 @@ html.reduced .finale-title .line span[data-rise] {
 .hero-cta {
   display: flex;
   gap: 14px;
-  margin-top: 36px;
+  margin-top: 34px;
   flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-watch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--smoke);
+  transition: color var(--dur-fast);
+}
+.hero-watch:hover {
+  color: var(--ember-300);
 }
 .hero-count {
-  margin-top: 52px;
-  display: block;
+  margin-top: clamp(30px, 4vh, 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .count-label {
   font-family: var(--font-mono);
@@ -229,55 +251,22 @@ html.reduced .finale-title .line span[data-rise] {
 .hero-inner {
   position: relative;
   z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 #hero .scroll-hint {
   z-index: 5;
 }
-.hero-logo {
-  position: absolute;
-  top: clamp(82px, 14vh, 140px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(330px, 62vw);
-  z-index: 5;
+.hero-logo-inline {
+  width: min(300px, 60vw);
+  margin-bottom: clamp(6px, 1.5vh, 18px);
   pointer-events: none;
 }
-.hero-badges {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--sand);
-  background: rgba(11, 11, 14, 0.5);
-  border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  padding: 7px 13px;
-  backdrop-filter: blur(6px);
-}
-.hero-badge i {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: var(--ember-500);
-  box-shadow: 0 0 10px 1px rgba(255, 77, 31, 0.8);
-}
-.hero-badge.ghost {
-  color: var(--smoke);
-}
 @media (max-width: 560px) {
-  .hero-logo {
-    width: min(230px, 58vw);
-    top: 84px;
+  .hero-logo-inline {
+    width: min(220px, 56vw);
   }
 }
 
@@ -1182,6 +1171,23 @@ html.reduced .finale-title .line span[data-rise] {
   justify-content: center;
   margin-top: 40px;
   flex-wrap: wrap;
+}
+.finale-partner {
+  margin-top: 26px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.finale-partner a {
+  color: var(--ember-500);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+.finale-partner a:hover {
+  color: var(--ember-300);
 }
 .finale-foot {
   max-width: var(--container-wide);

@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { WiiMark } from "@/components/ui/WiiMark";
 
@@ -26,10 +27,16 @@ export function FinalCTASection() {
           <MagneticButton href="/community" className="btn btn-ghost-line btn-lg">
             Join Community
           </MagneticButton>
-          <MagneticButton href="/partners" className="btn btn-ghost-line btn-lg">
-            Partner With Us
+          <MagneticButton href="/events" className="btn btn-ghost-line btn-lg">
+            Buy Tickets
           </MagneticButton>
         </div>
+        <p className="finale-partner" data-rise>
+          Looking to partner with Wii Event Malta?{" "}
+          <Link href="/partners" data-cursor>
+            Partner With Us →
+          </Link>
+        </p>
       </div>
       <footer className="finale-foot">
         <div className="ff-mark">

@@ -8,7 +8,7 @@ export function UpcomingEventsSection() {
     <section id="events" className="chapter" data-mood="events">
       <div className="chapter-head">
         <div className="eyebrow" data-rise>
-          Chapter 02 · Now on sale
+          Chapter 01 · Now on sale
         </div>
         <h2 className="big" data-rise>
           The Next Drop

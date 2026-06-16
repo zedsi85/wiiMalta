@@ -7,7 +7,7 @@ export function EventFormatsSection() {
     <section id="formats" className="chapter" data-mood="formats">
       <div className="chapter-head">
         <div className="eyebrow" data-rise>
-          Chapter 03 · What we build
+          Chapter 05 · What we build
         </div>
         <h2 className="big" data-rise>
           Event Formats
