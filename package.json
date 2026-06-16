@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "description": "Wii Event Malta — cinematic, premium events & ticketing platform. Malta After Dark.",
+  "engines": {
+    "node": ">=18.18.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

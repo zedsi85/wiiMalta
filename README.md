@@ -25,6 +25,16 @@ npm run dev      # http://localhost:3000
 npm run build    # production build
 ```
 
+## Deploy (Vercel)
+
+Zero-config — Vercel detects Next.js automatically (Build: `next build`,
+Output: `.next`). Just import the repo and deploy.
+
+- **Node:** pinned to 22 via `.nvmrc` / `engines` (Next 14 needs ≥ 18.18).
+- **Env:** optional `NEXT_PUBLIC_SITE_URL` pins the canonical/OG origin to your
+  custom domain. Without it, canonical URLs fall back to the per-deployment
+  `VERCEL_URL` (see `.env.example`). No other env vars are required.
+
 ## Routes
 
 | Route | What |
