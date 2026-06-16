@@ -20,14 +20,14 @@ export default function AboutPage() {
 
       {/* Hero */}
       <Section max="var(--container-wide)" style={{ paddingTop: "clamp(120px, 18vh, 220px)", paddingBottom: "var(--space-7)" }}>
-        <SectionLabel style={{ marginBottom: 16 }}>The brand · Est. MMXXV</SectionLabel>
+        <SectionLabel style={{ marginBottom: 16 }}>Mediterranean event collective · Tunisia → Malta</SectionLabel>
         <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "clamp(2.5rem, 8vw, 6.5rem)", textTransform: "uppercase", letterSpacing: "-0.03em", lineHeight: 0.84, color: "var(--bone)", maxWidth: "16ch" }}>
           Where music meets the island
         </h1>
         <p style={{ marginTop: 24, maxWidth: "54ch", color: "var(--sand)", fontSize: "1.1875rem", lineHeight: 1.55 }}>
-          Wii Event Malta creates curated music experiences where sound, location, people and culture
-          meet. Not a generic event organiser — a destination label, a ticketing platform, and a
-          movement built after dark.
+          Wii Event Malta is the Malta extension of an established Mediterranean event collective. Born
+          from real event operations in Tunisia, we bring proven nightlife experience, digital
+          ticketing and community-first energy to the island — not a project starting from zero.
         </p>
       </Section>
 
@@ -41,9 +41,9 @@ export default function AboutPage() {
               Build the nights the island deserves — and the community to carry them.
             </p>
             <p style={{ marginTop: 22, color: "var(--fog)", fontSize: "1.0625rem", lineHeight: 1.6, maxWidth: "46ch" }}>
-              From a sea cave in Gozo to a fort in Kalkara, every event is a chapter. We own the whole
-              experience: the booking, the room, the sound, the ticket in your wallet and the film
-              afterwards.
+              From Tunisia&apos;s event scene to Malta&apos;s island stages, every event is a chapter.
+              We own the whole experience: the booking, the room, the sound, the ticket in your wallet
+              and the film afterwards.
             </p>
           </div>
         </div>

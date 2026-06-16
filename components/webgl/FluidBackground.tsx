@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { Mood } from "@/styles/tokens";
 
@@ -19,6 +19,18 @@ export type FluidBackgroundProps = {
   mood?: Mood;
   intensity?: number;
   interactive?: boolean;
+  /** CSS mix-blend-mode for the canvas — use "screen" to layer over video. */
+  blendMode?: "screen" | "overlay" | "soft-light" | "normal";
+  /** Canvas opacity (0–1). Lower it when layering over real footage. */
+  opacity?: number;
+  /**
+   * "fixed" = the global, full-viewport atmospheric background (#bg-canvas).
+   * "inline" = an absolutely-positioned overlay that fills its parent (e.g. the
+   * subtle Three.js layer sitting over the hero video).
+   */
+  variant?: "fixed" | "inline";
+  /** Whether this instance owns the global window.__wiiSetMood hook. */
+  registerMood?: boolean;
 };
 
 type Palette = { a: number[]; b: number[]; c: number[]; acc: number[]; i: number };
@@ -48,6 +60,10 @@ export default function FluidBackground({
   mood = "hero",
   intensity = 1,
   interactive = true,
+  blendMode = "normal",
+  opacity = 1,
+  variant = "fixed",
+  registerMood = variant === "fixed",
 }: FluidBackgroundProps) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -162,8 +178,9 @@ export default function FluidBackground({
     scene.add(quad);
 
     const resize = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const parent = canvas.parentElement;
+      const w = variant === "inline" && parent ? parent.clientWidth : window.innerWidth;
+      const h = variant === "inline" && parent ? parent.clientHeight : window.innerHeight;
       renderer.setSize(w, h, false);
       uniforms.u_res.value.set(w, h);
     };
@@ -178,12 +195,16 @@ export default function FluidBackground({
     };
     window.addEventListener("pointermove", onMove, { passive: true });
 
-    // Public mood setter — scroll choreography calls window.__wiiSetMood(name)
-    window.__wiiSetMood = (name: Mood) => {
-      const m = MOODS[name];
-      if (m) Object.assign(tgt, clone(m));
-    };
-    if (window.__wiiMood) window.__wiiSetMood(window.__wiiMood);
+    // Public mood setter — scroll choreography calls window.__wiiSetMood(name).
+    // Only the global (fixed) instance owns this hook; the hero overlay stays
+    // pinned to its own mood so it never fights the page-wide palette.
+    if (registerMood) {
+      window.__wiiSetMood = (name: Mood) => {
+        const m = MOODS[name];
+        if (m) Object.assign(tgt, clone(m));
+      };
+      if (window.__wiiMood) window.__wiiSetMood(window.__wiiMood);
+    }
 
     const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
     const lerp3 = (a: number[], b: number[], k: number) => [
@@ -233,12 +254,24 @@ export default function FluidBackground({
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("visibilitychange", onVisibility);
-      delete window.__wiiSetMood;
+      if (registerMood) delete window.__wiiSetMood;
       quad.geometry.dispose();
       material.dispose();
       renderer.dispose();
     };
-  }, [mood, intensity, interactive]);
+  }, [mood, intensity, interactive, variant, registerMood]);
 
-  return <canvas id="bg-canvas" ref={ref} aria-hidden="true" />;
+  const inlineStyle: React.CSSProperties =
+    variant === "inline"
+      ? { position: "absolute", inset: 0, width: "100%", height: "100%", opacity, mixBlendMode: blendMode, pointerEvents: "none" }
+      : { opacity, mixBlendMode: blendMode };
+
+  return (
+    <canvas
+      id={variant === "fixed" ? "bg-canvas" : undefined}
+      ref={ref}
+      aria-hidden="true"
+      style={inlineStyle}
+    />
+  );
 }

@@ -26,7 +26,8 @@ export function BrandStatementSection() {
           </span>
         </p>
         <p className="statement-sub" data-rise>
-          An event brand. A ticketing platform. A music label. A community — and soon, a digital
+          Mediterranean event specialists. An event brand, a ticketing platform, a music label and a
+          community — proven in Tunisia, now building Malta&apos;s nights. And soon, a digital
           membership.
         </p>
       </div>

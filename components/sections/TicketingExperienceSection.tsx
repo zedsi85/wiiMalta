@@ -16,7 +16,7 @@ export function TicketingExperienceSection() {
       <div className="ticketing-wrap">
         <div className="ticketing-copy">
           <div className="eyebrow" data-rise>
-            Chapter 05 · The platform
+            Chapter 04 · The platform
           </div>
           <h2 className="big" data-rise>
             Tickets in

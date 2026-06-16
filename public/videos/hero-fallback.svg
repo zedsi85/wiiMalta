@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Wii Event Malta — Mediterranean night">
+  <defs>
+    <radialGradient id="sun" cx="50%" cy="64%" r="55%">
+      <stop offset="0%" stop-color="#FF6A2B" stop-opacity="0.9"/>
+      <stop offset="34%" stop-color="#C42C06" stop-opacity="0.5"/>
+      <stop offset="70%" stop-color="#2a1230" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0a12"/>
+      <stop offset="48%" stop-color="#1a0d2a"/>
+      <stop offset="100%" stop-color="#050506"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#night)"/>
+  <rect width="1600" height="900" fill="url(#sun)"/>
+  <!-- horizon sea waves -->
+  <g stroke="#2E6BFF" stroke-opacity="0.25" stroke-width="2" fill="none">
+    <path d="M0 640 q120 -28 240 0 t240 0 t240 0 t240 0 t240 0 t240 0"/>
+    <path d="M0 686 q140 -22 280 0 t280 0 t280 0 t280 0 t280 0" stroke-opacity="0.16"/>
+  </g>
+  <rect width="1600" height="900" filter="url(#grain)" opacity="0.06"/>
+</svg>

@@ -7,7 +7,7 @@ export function PartnersSection() {
     <section id="partners" className="chapter" data-mood="partners">
       <div className="chapter-head">
         <div className="eyebrow" data-rise>
-          Chapter 08 · Work with us
+          Chapter 09 · Work with us
         </div>
         <h2 className="big" data-rise>
           Partner With Us

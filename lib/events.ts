@@ -305,18 +305,66 @@ export const formatTints = [
   "#241318", "#13202e", "#2a1230", "#0f1a14",
 ];
 
+/**
+ * "Previous Moments" — real footage + stills from the team's Tunisia event
+ * operations, used as proof of experience. `[label, isVideo]`.
+ */
 export const gallery: [string, boolean][] = [
-  ["Cave 12 — 2025", false],
-  ["Fort Ricasoli", true],
-  ["Crowd — Valletta", false],
-  ["Blue Lagoon", true],
-  ["Sunset terrace", false],
-  ["After dark", true],
+  ["Tunisia Event Footage", true],
+  ["Crowd Energy", false],
+  ["Stage & Lighting", false],
+  ["Behind the Scenes", true],
+  ["Media Capture", false],
   ["Aftermovie '25", true],
+  ["After Dark", false],
 ];
 
 export const galleryTints = [
   "#3a1410", "#101a2e", "#1a1030", "#10221f", "#2a1810", "#241318", "#13202e",
+];
+
+/* ---- Tunisia → Malta credibility ---- */
+export const credibilityPoints: string[] = [
+  "Proven event operations",
+  "Live crowd management",
+  "Supplier & artist coordination",
+  "Media & content execution",
+  "Mediterranean audience understanding",
+  "Now expanding to Malta",
+];
+
+export interface Founder {
+  name: string;
+  role: string;
+  blurb: string;
+  points: string[];
+}
+
+export const founders: Founder[] = [
+  {
+    name: "Ali",
+    role: "Event Operations",
+    blurb: "Brings proven event execution from Tunisia to Malta.",
+    points: [
+      "Event management experience in Tunisia",
+      "Venue & supplier coordination",
+      "Artist & lineup support",
+      "Logistics & on-ground execution",
+      "Malta operations",
+    ],
+  },
+  {
+    name: "Zied / Issatrix",
+    role: "Digital Engine",
+    blurb: "Builds the digital engine behind the brand.",
+    points: [
+      "Website & ticketing system",
+      "CRM & audience database",
+      "Media distribution & paid acquisition",
+      "Community pass infrastructure",
+      "Analytics & sponsor reporting",
+    ],
+  },
 ];
 
 export const partners: [string, string, string][] = [

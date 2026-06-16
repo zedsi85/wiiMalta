@@ -12,7 +12,7 @@ export function CommunityAccessSection() {
     <section id="community" className="chapter" data-mood="community">
       <div className="chapter-head center">
         <div className="eyebrow gold" data-rise>
-          Chapter 06 · Coming soon · Digital pass
+          Chapter 05 · Coming soon · Digital pass
         </div>
         <h2 className="big" data-rise>
           Belong to the night

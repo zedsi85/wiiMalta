@@ -125,7 +125,8 @@ export function Footer() {
               </span>
             </div>
             <p style={{ marginTop: 16, maxWidth: "30ch", color: "var(--text-muted)", fontSize: "0.875rem", lineHeight: 1.6 }}>
-              Curated nights across Malta. Sound, location, people and culture — connected after dark.
+              Born from Mediterranean event experience in Tunisia — now curating nights across Malta.
+              Sound, people, places — connected after dark.
             </p>
           </div>
           {cols.map((c) => (
