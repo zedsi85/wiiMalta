@@ -482,6 +482,80 @@ html.reduced .finale-title .line span[data-rise] {
   line-height: 1.6;
 }
 
+/* ---- Restored scroll-words manifesto ---- */
+.chapter-statement {
+  position: relative;
+}
+.bs-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(40% 50% at 28% 30%, rgba(255, 77, 31, 0.1), transparent 70%),
+    radial-gradient(42% 52% at 76% 72%, rgba(123, 54, 227, 0.12), transparent 70%);
+  animation: wii-drift 16s var(--ease-inout) infinite;
+}
+.chapter-statement > *:not(.bs-glow) {
+  position: relative;
+  z-index: 1;
+}
+.bs-lead {
+  max-width: var(--container);
+  margin: 0 auto clamp(24px, 4vw, 50px);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+.brand-word {
+  will-change: transform, filter, opacity;
+}
+.brand-word.alt {
+  text-shadow: 0 0 38px rgba(255, 77, 31, 0.28);
+}
+.bs-copy-wrap {
+  max-width: var(--container);
+  margin: clamp(26px, 4vw, 52px) auto 0;
+}
+.bs-main {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 3vw, 2.4rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: var(--bone);
+}
+.bs-main em {
+  color: var(--ember-500);
+  font-style: normal;
+}
+.bs-sub {
+  max-width: 60ch;
+  margin-top: 20px;
+  color: var(--fog);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+.bs-close {
+  margin-top: clamp(28px, 4vw, 56px);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.4rem, 3.4vw, 2.8rem);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--bone);
+}
+.bs-close em {
+  color: var(--ember-500);
+  font-style: normal;
+}
+
 /* ===================== CH4 FORMATS ===================== */
 .formats-grid {
   max-width: var(--container-wide);

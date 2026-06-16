@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import "./cinema.css";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { UpcomingEventsSection } from "@/components/sections/UpcomingEventsSection";
+import { BrandStatementSection } from "@/components/sections/BrandStatementSection";
 import { TicketingExperienceSection } from "@/components/sections/TicketingExperienceSection";
 import { CommunityAccessSection } from "@/components/sections/CommunityAccessSection";
 import { PreviousMomentsSection } from "@/components/sections/PreviousMomentsSection";
@@ -78,6 +79,7 @@ export default function HomePage() {
     <main ref={scope}>
       <HeroSection />
       <UpcomingEventsSection />
+      <BrandStatementSection />
       <TicketingExperienceSection />
       <CommunityAccessSection />
       <PreviousMomentsSection />

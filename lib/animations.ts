@@ -91,25 +91,6 @@ export function buildHomeTimeline(
 
   const ctx = gsap.context(() => {
     if (!reduced) {
-      // Statement words — horizontal parallax
-      gsap.utils.toArray<HTMLElement>(".sw").forEach((w) => {
-        const sp = parseFloat(w.dataset.speed || "0") || 0;
-        gsap.fromTo(
-          w,
-          { xPercent: sp * -1.2 },
-          {
-            xPercent: sp * 1.2,
-            ease: "none",
-            scrollTrigger: {
-              trigger: ".chapter-statement",
-              start: "top bottom",
-              end: "bottom top",
-              scrub: 1,
-            },
-          }
-        );
-      });
-
       // Poster parallax (subtle, vertical)
       gsap.utils.toArray<HTMLElement>(".ev-poster .pp, .fmt .pp").forEach((pp) => {
         gsap.fromTo(
