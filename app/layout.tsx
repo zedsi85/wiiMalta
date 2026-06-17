@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./cinema.css";
 import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
 import CustomCursor from "@/components/layout/CustomCursor";
 import FluidBackground from "@/components/webgl/FluidBackground";

@@ -1,6 +1,7 @@
 "use client";
 
 import { MoodSetter } from "@/components/layout/MoodSetter";
+import IslandContours from "@/components/visual/IslandContours";
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +19,8 @@ const WHY_MALTA: [string, string][] = [
 export default function AboutPage() {
   return (
     <>
+      <IslandContours className="fx-layer" variant="mediterranean" opacity={0.16} animated parallax />
+      <div className="page-fx-content">
       <MoodSetter mood="events" />
 
       {/* 1 — Hero / Our Story intro */}
@@ -172,6 +175,7 @@ export default function AboutPage() {
       </Section>
 
       <style>{`@media (max-width: 900px){.about-split{grid-template-columns:1fr!important}}`}</style>
+      </div>
     </>
   );
 }

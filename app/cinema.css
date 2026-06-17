@@ -564,7 +564,7 @@ body.intro-playing #nav {
     radial-gradient(42% 52% at 76% 72%, rgba(123, 54, 227, 0.12), transparent 70%);
   animation: wii-drift 16s var(--ease-inout) infinite;
 }
-.chapter-statement > *:not(.bs-glow) {
+.chapter-statement > *:not(.bs-glow):not(.fx-layer) {
   position: relative;
   z-index: 1;
 }
@@ -1399,4 +1399,92 @@ body.intro-playing #nav {
   .scroll-hint i {
     animation: none !important;
   }
+}
+
+/* ===================== IMMERSIVE FX LAYERS ===================== */
+/* Generic absolute backdrop layer for canvas/SVG effects (never blocks input). */
+.fx-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Keep section content above any fx-layer backdrop. */
+#ticketing > .ticketing-wrap {
+  position: relative;
+  z-index: 1;
+}
+#community > .chapter-head,
+#community > .community-stage,
+#community > .community-copy {
+  position: relative;
+  z-index: 1;
+}
+#formats > .chapter-head,
+#formats > .formats-grid {
+  position: relative;
+  z-index: 1;
+}
+
+/* IslandContours — slow stroke-dash drift */
+.ic-line {
+  stroke-dasharray: 5 12;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ic-line {
+    animation: ic-drift 18s linear infinite;
+  }
+  .ic-line-1 {
+    animation-duration: 24s;
+  }
+  .ic-line-2 {
+    animation-duration: 30s;
+  }
+  .ic-line-3 {
+    animation-duration: 21s;
+  }
+}
+@keyframes ic-drift {
+  to {
+    stroke-dashoffset: -180;
+  }
+}
+
+/* ===================== EVENT CARD — 3D / gloss ===================== */
+.ev-card {
+  transition: box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  will-change: transform;
+}
+.ev-card:hover,
+.ev-card:focus-visible {
+  border-color: rgba(255, 77, 31, 0.42);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 77, 31, 0.22), 0 18px 50px rgba(255, 77, 31, 0.12);
+}
+.ev-gloss {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.ev-card:hover .ev-gloss,
+.ev-card:focus-visible .ev-gloss {
+  opacity: 1;
+}
+.ev-card:hover .btn-primary {
+  box-shadow: var(--glow-cta-hi);
+}
+@media (hover: none) {
+  .ev-card:active {
+    transform: scale(0.99);
+  }
+}
+
+/* Page-level fx backdrop: keep page content above an absolute .fx-layer */
+.page-fx-content {
+  position: relative;
+  z-index: 1;
 }

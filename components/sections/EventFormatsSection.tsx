@@ -1,3 +1,4 @@
+import IslandContours from "@/components/visual/IslandContours";
 import { eventFormats, formatTints } from "@/lib/events";
 import { pad } from "@/lib/utils";
 
@@ -5,6 +6,7 @@ import { pad } from "@/lib/utils";
 export function EventFormatsSection() {
   return (
     <section id="formats" className="chapter" data-mood="formats">
+      <IslandContours className="fx-layer" variant="malta" opacity={0.14} animated />
       <div className="chapter-head">
         <div className="eyebrow" data-rise>
           Chapter 05 · What we build

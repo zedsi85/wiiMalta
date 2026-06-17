@@ -1,3 +1,4 @@
+import AccessParticles from "@/components/webgl/AccessParticles";
 import { qrCells } from "@/lib/qr";
 
 /** Chapter 05 — Ticketing Experience. Five-step journey + parallax phone demo. */
@@ -13,6 +14,7 @@ export function TicketingExperienceSection() {
   const cells = qrCells("VIP-0427");
   return (
     <section id="ticketing" className="chapter" data-mood="ticketing">
+      <AccessParticles className="fx-layer" mode="tickets" density={48} opacity={0.2} interactive />
       <div className="ticketing-wrap">
         <div className="ticketing-copy">
           <div className="eyebrow" data-rise>

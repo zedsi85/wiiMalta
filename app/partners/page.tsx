@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { MoodSetter } from "@/components/layout/MoodSetter";
+import IslandContours from "@/components/visual/IslandContours";
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +24,8 @@ export default function PartnersPage() {
 
   return (
     <>
+      <IslandContours className="fx-layer" variant="abstract" opacity={0.12} animated parallax />
+      <div className="page-fx-content">
       <MoodSetter mood="partners" />
 
       {/* Hero */}
@@ -122,6 +125,7 @@ export default function PartnersPage() {
           )}
         </div>
       </Section>
+      </div>
     </>
   );
 }

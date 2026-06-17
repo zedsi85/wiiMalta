@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import SoundWaveField from "@/components/webgl/SoundWaveField";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/animations";
 import { prefersReducedMotion } from "@/lib/utils";
 
@@ -100,6 +101,7 @@ export function BrandStatementSection() {
   return (
     <section id="statement" ref={ref} className="chapter chapter-statement" data-mood="statement">
       <div className="bs-glow" aria-hidden="true" />
+      <SoundWaveField className="fx-layer" intensity={0.5} opacity={0.3} active interactive />
 
       <p className="bs-lead bs-reveal">
         Not just events.

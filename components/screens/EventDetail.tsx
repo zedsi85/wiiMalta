@@ -13,6 +13,7 @@ import { ArtistCard } from "@/components/ui/ArtistCard";
 import { TicketTierCard } from "@/components/ui/TicketTierCard";
 import { EventCard } from "@/components/ui/EventCard";
 import { Reveal } from "@/components/ui/Reveal";
+import SoundWaveField from "@/components/webgl/SoundWaveField";
 import { setCart, priceValue, formatEuro, type CartLine } from "@/lib/cart";
 import type { WiiEvent } from "@/lib/events";
 
@@ -156,12 +157,15 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
             </Reveal>
 
             {/* Lineup */}
-            <div style={{ marginTop: "var(--space-9)" }}>
-              <SectionLabel style={{ marginBottom: 20 }}>Line-up</SectionLabel>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "var(--grid-gap)" }}>
-                {event.artists.map((a) => (
-                  <ArtistCard key={a.name} {...a} />
-                ))}
+            <div style={{ marginTop: "var(--space-9)", position: "relative" }}>
+              <SoundWaveField className="fx-layer" intensity={0.4} opacity={0.22} interactive />
+              <div className="page-fx-content">
+                <SectionLabel style={{ marginBottom: 20 }}>Line-up</SectionLabel>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "var(--grid-gap)" }}>
+                  {event.artists.map((a) => (
+                    <ArtistCard key={a.name} {...a} />
+                  ))}
+                </div>
               </div>
             </div>
 

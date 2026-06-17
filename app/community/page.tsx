@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { MoodSetter } from "@/components/layout/MoodSetter";
+import AccessParticles from "@/components/webgl/AccessParticles";
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,8 @@ export default function CommunityPage() {
 
   return (
     <>
+      <AccessParticles className="fx-layer" mode="community" density={50} opacity={0.2} interactive />
+      <div className="page-fx-content">
       <MoodSetter mood="community" />
 
       {/* Hero */}
@@ -111,6 +114,7 @@ export default function CommunityPage() {
       </Section>
 
       <style>{`@media (max-width: 860px){.comm-hero{grid-template-columns:1fr!important}}`}</style>
+      </div>
     </>
   );
 }

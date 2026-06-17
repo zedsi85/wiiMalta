@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { MoodSetter } from "@/components/layout/MoodSetter";
+import IslandContours from "@/components/visual/IslandContours";
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Tag } from "@/components/ui/Tag";
@@ -32,6 +33,8 @@ export default function EventsPage() {
 
   return (
     <>
+      <IslandContours className="fx-layer" variant="malta" opacity={0.16} animated parallax />
+      <div className="page-fx-content">
       <MoodSetter mood="events" />
 
       {/* Page hero */}
@@ -129,6 +132,7 @@ export default function EventsPage() {
           </p>
         )}
       </Section>
+      </div>
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import "./cinema.css";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { UpcomingEventsSection } from "@/components/sections/UpcomingEventsSection";
 import { BrandStatementSection } from "@/components/sections/BrandStatementSection";

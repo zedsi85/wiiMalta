@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { MoodSetter } from "@/components/layout/MoodSetter";
+import AccessParticles from "@/components/webgl/AccessParticles";
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
@@ -89,6 +90,8 @@ export default function CheckoutPage() {
 
   return (
     <>
+      <AccessParticles className="fx-layer" mode="checkout" density={34} opacity={0.16} interactive />
+      <div className="page-fx-content">
       <MoodSetter mood="ticketing" />
       <Section max="var(--container)" style={{ paddingTop: "clamp(110px, 16vh, 190px)" }}>
         {/* Header + stepper */}
@@ -267,6 +270,7 @@ export default function CheckoutPage() {
       </Section>
 
       <style>{`@media (max-width: 900px){.checkout-grid{grid-template-columns:1fr!important}.checkout-aside{position:static!important}}`}</style>
+      </div>
     </>
   );
 }

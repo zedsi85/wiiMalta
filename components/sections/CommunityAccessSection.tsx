@@ -1,3 +1,4 @@
+import AccessParticles from "@/components/webgl/AccessParticles";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { WiiMark } from "@/components/ui/WiiMark";
 
@@ -10,6 +11,7 @@ const ORBITS = ["Early access", "VIP upgrades", "Ticket credits", "Partner perks
 export function CommunityAccessSection() {
   return (
     <section id="community" className="chapter" data-mood="community">
+      <AccessParticles className="fx-layer" mode="community" density={52} opacity={0.2} interactive />
       <div className="chapter-head center">
         <div className="eyebrow gold" data-rise>
           Chapter 03 · Coming soon · Digital pass
