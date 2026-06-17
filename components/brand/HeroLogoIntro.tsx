@@ -24,11 +24,16 @@ import { getLenis } from "@/lib/lenis";
 export function HeroLogoIntro({ onComplete }: { onComplete: () => void }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const doneRef = useRef(false);
+  // Keep the latest onComplete without re-running the timeline effect. The hero
+  // re-renders every second (countdown), so depending on `onComplete` here would
+  // rebuild the timeline each tick and it would never finish.
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) {
-      onComplete();
+      onCompleteRef.current?.();
       return;
     }
     registerGsap();
@@ -44,7 +49,7 @@ export function HeroLogoIntro({ onComplete }: { onComplete: () => void }) {
       document.body.classList.remove("intro-playing");
       document.body.style.overflow = "";
       getLenis()?.start();
-      onComplete();
+      onCompleteRef.current?.();
     };
 
     // Hold the user still + drop the nav while the intro plays.
@@ -124,7 +129,9 @@ export function HeroLogoIntro({ onComplete }: { onComplete: () => void }) {
       document.body.style.overflow = "";
       getLenis()?.start();
     };
-  }, [onComplete]);
+    // Run exactly once on mount — never rebuild on parent re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="intro-overlay" ref={overlayRef} aria-hidden="true">

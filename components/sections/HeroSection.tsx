@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { MagneticButton } from "@/components/ui/MagneticButton";
@@ -31,6 +31,16 @@ export function HeroSection() {
   const [overlay, setOverlay] = useState(false);
   const [intro, setIntro] = useState<IntroState>("idle");
 
+  // Stable so it never re-triggers the intro's run-once effect.
+  const handleIntroComplete = useCallback(() => {
+    try {
+      sessionStorage.setItem("wiiHeroIntroPlayed", "true");
+    } catch {
+      /* private mode — fine */
+    }
+    setIntro("done");
+  }, []);
+
   useEffect(() => {
     setOverlay(!prefersReducedMotion() && window.innerWidth >= 768);
 
@@ -47,6 +57,15 @@ export function HeroSection() {
       setIntro("play");
     }
   }, []);
+
+  // Hard failsafe: the intro can never block the site, even if GSAP fails.
+  useEffect(() => {
+    if (intro !== "play") return;
+    const t = window.setTimeout(() => {
+      handleIntroComplete();
+    }, 4500);
+    return () => window.clearTimeout(t);
+  }, [intro, handleIntroComplete]);
 
   useEffect(() => {
     const tick = () => {
@@ -175,7 +194,7 @@ export function HeroSection() {
       </div>
 
       {/* One-time cinematic opening */}
-      {playingIntro ? <HeroLogoIntro onComplete={() => setIntro("done")} /> : null}
+      {playingIntro ? <HeroLogoIntro onComplete={handleIntroComplete} /> : null}
     </section>
   );
 }
