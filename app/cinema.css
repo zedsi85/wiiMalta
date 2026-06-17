@@ -269,6 +269,74 @@ html.reduced .finale-title .line span[data-rise] {
     width: min(220px, 56vw);
   }
 }
+.hero-main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* ---- Full-screen opening intro (HeroLogoIntro) ---- */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(82% 72% at 50% 45%, rgba(5, 5, 6, 0.32), rgba(5, 5, 6, 0.74));
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  will-change: opacity;
+}
+.intro-stage {
+  display: grid;
+  place-items: center;
+  padding: 0 var(--gutter);
+}
+.intro-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2.4vw, 26px);
+  will-change: transform;
+}
+.intro-graphic {
+  width: min(440px, 78vw);
+  height: auto;
+  overflow: visible;
+}
+.intro-words {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0px, 0.5vw, 6px);
+}
+.intro-word {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.2rem, 8vw, 5.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--bone);
+  will-change: transform, opacity, filter;
+}
+.intro-word:nth-child(2) {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(239, 231, 214, 0.55);
+}
+
+/* Fade the navbar out while the intro plays */
+body.intro-playing #nav {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+#nav {
+  transition: opacity 0.45s var(--ease-out), transform 0.45s var(--ease-out),
+    padding var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out), backdrop-filter var(--dur-base);
+}
 
 /* ===================== CH2 EVENTS ===================== */
 .events-grid {
