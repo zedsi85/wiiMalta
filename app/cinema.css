@@ -1488,3 +1488,103 @@ body.intro-playing #nav {
   position: relative;
   z-index: 1;
 }
+
+/* ===================== CARD ILLUSTRATIONS ===================== */
+.ci-fill {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Poster cards: tint (0) < illustration (1) < dark overlay (2) < text (3) */
+.ev-poster .pp,
+.fmt .pp,
+.gal .pp {
+  z-index: 0;
+}
+.ev-poster .ci-fill,
+.fmt .ci-fill,
+.gal .ci-fill {
+  z-index: 1;
+}
+.ev-poster::after,
+.fmt::after,
+.gal::after {
+  z-index: 2;
+}
+.ev-idx {
+  z-index: 3;
+}
+
+/* Phone "event film" slot */
+.ph-hero .ci-fill {
+  z-index: 0;
+}
+.ph-hero span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Text cards: solid bg < illustration (0) < content (1) */
+.pcard,
+.perk-card {
+  position: relative;
+  overflow: hidden;
+}
+.pcard > .ci-fill,
+.perk-card > .ci-fill {
+  z-index: 0;
+}
+.pcard > *:not(.ci-fill),
+.perk-card > *:not(.ci-fill) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Subtle, performance-friendly motion — disabled for reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .ci-pulse {
+    animation: ci-pulse 6s var(--ease-inout) infinite;
+  }
+  .ci-wave {
+    animation: ci-wave 11s linear infinite;
+  }
+  .ci-orbit {
+    animation: ci-orbit 48s linear infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .ci-beam {
+    animation: ci-beam 7s var(--ease-inout) infinite;
+  }
+  .ci-float {
+    animation: ci-float 8s var(--ease-inout) infinite;
+    transform-box: fill-box;
+  }
+}
+@keyframes ci-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@keyframes ci-wave {
+  to { transform: translateX(-40px); }
+}
+@keyframes ci-orbit {
+  to { transform: rotate(360deg); }
+}
+@keyframes ci-beam {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.65; }
+}
+@keyframes ci-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Hold the new mobile-disable rule for heavy animation on small screens */
+@media (max-width: 600px) {
+  .ci-wave,
+  .ci-orbit {
+    animation: none;
+  }
+}

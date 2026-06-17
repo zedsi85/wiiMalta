@@ -1,4 +1,5 @@
 import AccessParticles from "@/components/webgl/AccessParticles";
+import { CardIllustration } from "@/components/visual/CardIllustration";
 import { qrCells } from "@/lib/qr";
 
 /** Chapter 05 — Ticketing Experience. Five-step journey + parallax phone demo. */
@@ -44,6 +45,7 @@ export function TicketingExperienceSection() {
             <div className="phone-screen">
               {/* @asset replace with real event film */}
               <div className="media-slot ph-hero">
+                <CardIllustration variant="ticket" intensity="high" animated />
                 <span>▦ Event film</span>
               </div>
               <div className="ph-body">

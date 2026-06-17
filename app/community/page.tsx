@@ -3,6 +3,15 @@
 import React, { useState } from "react";
 import { MoodSetter } from "@/components/layout/MoodSetter";
 import AccessParticles from "@/components/webgl/AccessParticles";
+import { CardIllustration } from "@/components/visual/CardIllustration";
+import type { CardIllustrationVariant } from "@/lib/illustrations";
+
+const PERK_VARIANTS: Record<string, CardIllustrationVariant> = {
+  "Early access": "access",
+  "Private drops": "access",
+  "Partner perks": "partner",
+  "Community nights": "community",
+};
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
@@ -58,7 +67,8 @@ export default function CommunityPage() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "var(--grid-gap)" }}>
           {communityPerks.map(([title, desc], i) => (
             <Reveal key={title} delay={(i % 4) * 70}>
-              <div style={{ background: "var(--surface-2)", border: "1px solid var(--border-soft)", borderRadius: "var(--radius-lg)", padding: "26px 24px", height: "100%" }}>
+              <div className="perk-card" style={{ background: "var(--surface-2)", border: "1px solid var(--border-soft)", borderRadius: "var(--radius-lg)", padding: "26px 24px", height: "100%" }}>
+                <CardIllustration variant={PERK_VARIANTS[title] ?? "community"} intensity="low" animated />
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--ember-500)" }}>{String(i + 1).padStart(2, "0")}</div>
                 <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.25rem", textTransform: "uppercase", color: "var(--bone)", marginTop: 14 }}>{title}</h3>
                 <p style={{ marginTop: 10, color: "var(--fog)", fontSize: "0.9rem", lineHeight: 1.55 }}>{desc}</p>

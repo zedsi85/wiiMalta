@@ -1,4 +1,8 @@
 import { gallery, galleryTints } from "@/lib/events";
+import { CardIllustration } from "@/components/visual/CardIllustration";
+import type { CardIllustrationVariant } from "@/lib/illustrations";
+
+const GAL_VARIANTS: CardIllustrationVariant[] = ["gallery", "sound", "stage", "sea"];
 
 /**
  * Chapter 08 — Previous Moments From Tunisia. A horizontal, pinned gallery (GSAP)
@@ -44,8 +48,11 @@ export function PreviousMomentsSection() {
                     <source src="/videos/tunisia-event-footage.mp4" type="video/mp4" />
                   </video>
                 ) : (
-                  // @asset replace gradient with real event photo/film
-                  <div className="pp" style={{ background: `linear-gradient(160deg,${galleryTints[i]},#0a0a0c)` }} />
+                  <>
+                    {/* @asset replace gradient + illustration with real event photo/film */}
+                    <div className="pp" style={{ background: `linear-gradient(160deg,${galleryTints[i]},#0a0a0c)` }} />
+                    <CardIllustration variant={GAL_VARIANTS[i % GAL_VARIANTS.length]} intensity="high" animated />
+                  </>
                 )}
                 {isVideo ? <span className="gal-play">▶</span> : null}
                 <span className="gal-cap">▦ {label}</span>

@@ -1,4 +1,6 @@
 import IslandContours from "@/components/visual/IslandContours";
+import { CardIllustration } from "@/components/visual/CardIllustration";
+import { formatVariant } from "@/lib/illustrations";
 import { eventFormats, formatTints } from "@/lib/events";
 import { pad } from "@/lib/utils";
 
@@ -18,8 +20,9 @@ export function EventFormatsSection() {
       <div className="formats-grid" id="formatsGrid" data-stagger>
         {eventFormats.map(([title, desc], i) => (
           <div className="fmt" key={title} data-card="Explore">
-            {/* @asset replace gradient with real format imagery */}
+            {/* @asset replace gradient + illustration with real format imagery */}
             <div className="pp" style={{ background: `linear-gradient(155deg,${formatTints[i]},#0a0a0c 75%)` }} />
+            <CardIllustration variant={formatVariant(title)} intensity="high" animated />
             <span className="fmt-num">{pad(i + 1)}</span>
             <div className="fmt-label">
               <h4>{title}</h4>

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRef } from "react";
 import { pad, hasFinePointer, prefersReducedMotion } from "@/lib/utils";
 import { statusLabel, type WiiEvent } from "@/lib/events";
+import { CardIllustration } from "@/components/visual/CardIllustration";
+import { eventVariant } from "@/lib/illustrations";
 
 /**
  * Wii Event Malta — EventCard.
@@ -83,8 +85,9 @@ export function EventCard({ event, index }: { event: WiiEvent; index?: number })
       onPointerLeave={onLeave}
     >
       <div className="ev-poster wii-grain">
-        {/* @asset replace this gradient with real event poster artwork */}
+        {/* @asset replace this gradient + illustration with real poster artwork */}
         <div className="pp" style={{ background: event.tint }} />
+        <CardIllustration variant={eventVariant(event)} intensity="high" animated />
         {index != null ? <span className="ev-idx">{pad(index)}</span> : null}
         <span className="ev-status">
           <span className={`badge ${event.status}`}>
