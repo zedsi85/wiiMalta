@@ -4,14 +4,14 @@ import React, { useState } from "react";
 import { MoodSetter } from "@/components/layout/MoodSetter";
 import IslandContours from "@/components/visual/IslandContours";
 import { CardIllustration } from "@/components/visual/CardIllustration";
-import type { CardIllustrationVariant } from "@/lib/illustrations";
+import type { Artwork } from "@/lib/illustrations";
 
-const PARTNER_VARIANTS: Record<string, CardIllustrationVariant> = {
-  Venues: "island",
-  Sponsors: "partner",
-  Artists: "stage",
-  Brands: "partner",
-  Media: "gallery",
+const PARTNER_VARIANTS: Record<string, Artwork> = {
+  Venues: "rooftop",
+  Sponsors: "festival",
+  Artists: "club",
+  Brands: "vip",
+  Media: "invite",
   Hospitality: "vip",
 };
 import { Section } from "@/components/ui/Section";
@@ -57,7 +57,7 @@ export default function PartnersPage() {
         <div className="partners-grid">
           {partners.map(([num, title, desc]) => (
             <div className="pcard" key={num} data-card="Partner">
-              <CardIllustration variant={PARTNER_VARIANTS[title] ?? "partner"} intensity="low" animated />
+              <CardIllustration variant={PARTNER_VARIANTS[title] ?? "rooftop"} intensity="low" animated />
               <b>{num}</b>
               <h4>{title}</h4>
               <p>{desc}</p>

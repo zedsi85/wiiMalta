@@ -1,8 +1,8 @@
 import { gallery, galleryTints } from "@/lib/events";
 import { CardIllustration } from "@/components/visual/CardIllustration";
-import type { CardIllustrationVariant } from "@/lib/illustrations";
+import type { Artwork } from "@/lib/illustrations";
 
-const GAL_VARIANTS: CardIllustrationVariant[] = ["gallery", "sound", "stage", "sea"];
+const GAL_VARIANTS: Artwork[] = ["club", "beach", "festival", "rooftop"];
 
 /**
  * Chapter 08 — Previous Moments From Tunisia. A horizontal, pinned gallery (GSAP)

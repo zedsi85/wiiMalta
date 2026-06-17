@@ -45,7 +45,7 @@ export function TicketingExperienceSection() {
             <div className="phone-screen">
               {/* @asset replace with real event film */}
               <div className="media-slot ph-hero">
-                <CardIllustration variant="ticket" intensity="high" animated />
+                <CardIllustration variant="sunset" intensity="high" animated />
                 <span>▦ Event film</span>
               </div>
               <div className="ph-body">

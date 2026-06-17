@@ -1588,3 +1588,18 @@ body.intro-playing #nav {
     animation: none;
   }
 }
+
+/* ===================== EVENT ARTWORK SYSTEM — poster motion ===================== */
+@keyframes wiiSunPulse {
+  0%, 100% { transform: scale(1); opacity: 0.92; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+@keyframes wiiPulseLine {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.95; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ci-fill * {
+    animation: none !important;
+  }
+}
