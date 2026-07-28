@@ -23,13 +23,13 @@ docs/
 
 ```bash
 npm install
-npm run dev        # turbo → next dev (apps/web) @ http://localhost:3000
-npm run build      # turbo → build all workspaces
+npm run dev        # next dev (apps/web) @ http://localhost:3000
+npm run build      # build all workspaces
 npm run typecheck  # tsc across all workspaces
 npm run lint
 ```
 
-Node ≥ 18.18 (pinned to 22 via `.nvmrc`). npm workspaces + Turborepo.
+Node ≥ 18.18 (pinned to 22 via `.nvmrc`). npm workspaces (plain scripts — Turborepo can come back when workspace count justifies build caching).
 
 ## Deploy (Vercel)
 
