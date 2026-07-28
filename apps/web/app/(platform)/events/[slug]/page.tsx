@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { events, getEvent, similarEvents } from "@/lib/events";
 import { EventDetail } from "@/components/screens/EventDetail";
+import { fetchCatalogEvent, fetchCatalogEvents, fetchSimilar } from "@/lib/catalog";
 
-export function generateStaticParams() {
+export const revalidate = 300;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const events = await fetchCatalogEvents();
   return events.map((e) => ({ slug: e.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const event = getEvent(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const event = await fetchCatalogEvent(params.slug);
   if (!event) return { title: "Event not found" };
   return {
     title: event.title,
@@ -16,8 +20,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function EventDetailPage({ params }: { params: { slug: string } }) {
-  const event = getEvent(params.slug);
+export default async function EventDetailPage({ params }: { params: { slug: string } }) {
+  const event = await fetchCatalogEvent(params.slug);
   if (!event) notFound();
-  return <EventDetail event={event} similar={similarEvents(params.slug)} />;
+  const similar = await fetchSimilar(params.slug);
+  return <EventDetail event={event} similar={similar} />;
 }

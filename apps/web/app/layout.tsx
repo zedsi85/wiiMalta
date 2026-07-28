@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./cinema.css";
+import { RefCapture } from "@/components/layout/RefCapture";
 
 // Resolve the public origin for canonical/OG URLs. On Vercel, VERCEL_URL is set
 // automatically per deployment; set NEXT_PUBLIC_SITE_URL to pin a custom domain.
@@ -41,7 +42,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <RefCapture />
+        {children}
+      </body>
     </html>
   );
 }

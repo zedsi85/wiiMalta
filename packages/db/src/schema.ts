@@ -283,6 +283,10 @@ export const eventContent = pgTable(
     isLive: boolean("is_live").notNull().default(false),
     blurb: text("blurb"),
     description: text("description"),
+    /** Editorial format label shown on cards ("Cave", "Fort", "Rooftop"…). */
+    kind: text("kind"),
+    /** Editorial availability badge override ("earlybird"); derived states (soldout/limited) come from inventory. */
+    badge: text("badge"),
     genres: jsonb("genres").$type<string[]>().notNull().default([]),
     /** Poster/hero media object keys (R2/S3), tint fallback while art loads. */
     media: jsonb("media").$type<{ posterKey?: string; heroKey?: string; tint?: string }>(),

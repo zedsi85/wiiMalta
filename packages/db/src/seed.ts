@@ -280,6 +280,8 @@ async function main() {
       isLive: true,
       blurb: ev.blurb,
       description: ev.blurb,
+      kind: ev.type,
+      badge: ev.mood === "earlybird" ? "earlybird" : null,
       genres: ev.genres,
       media: { tint: ev.tint },
       info: SHARED_INFO,

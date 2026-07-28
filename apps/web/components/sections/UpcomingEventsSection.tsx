@@ -1,9 +1,9 @@
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { EventCard } from "@/components/ui/EventCard";
-import { events } from "@/lib/events";
+import type { WiiEvent } from "@/lib/events";
 
 /** Chapter 02 — The Next Drop. Poster-grade event cards, staggered reveal. */
-export function UpcomingEventsSection() {
+export function UpcomingEventsSection({ events }: { events: WiiEvent[] }) {
   return (
     <section id="events" className="chapter" data-mood="events">
       <div className="chapter-head">

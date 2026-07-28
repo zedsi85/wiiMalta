@@ -6,7 +6,7 @@ import Link from "next/link";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { LogoFormation } from "@/components/brand/LogoFormation";
 import { HeroLogoIntro } from "@/components/brand/HeroLogoIntro";
-import { getFeatured } from "@/lib/events";
+import type { WiiEvent } from "@/lib/events";
 import { pad, prefersReducedMotion } from "@/lib/utils";
 
 // The hero's subtle Three.js overlay is the only second WebGL context, so load
@@ -24,8 +24,7 @@ const FORCE_PLAY_INTRO = false;
 type IntroState = "idle" | "play" | "done";
 
 /** Chapter 01 — Malta After Dark. One-time logo intro → clean Malta-first hero. */
-export function HeroSection() {
-  const featured = getFeatured();
+export function HeroSection({ featured }: { featured: WiiEvent }) {
   const target = new Date(featured.iso).getTime();
   const [parts, setParts] = useState<[string, string][] | null>(null);
   const [overlay, setOverlay] = useState(false);
