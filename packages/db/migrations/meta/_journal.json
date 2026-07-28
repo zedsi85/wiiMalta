@@ -15,6 +15,13 @@
       "when": 1785276923336,
       "tag": "0001_dusty_cargill",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785278265159,
+      "tag": "0002_enable_rls",
+      "breakpoints": true
     }
   ]
 }
