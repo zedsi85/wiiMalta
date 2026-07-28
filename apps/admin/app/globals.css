@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens come from @wii/ui/tokens.css (imported in app/layout.tsx). */
+
+body {
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-slate bg-charcoal p-5;
+  }
+  .label {
+    @apply font-mono text-[0.625rem] uppercase tracking-[0.18em] text-fog;
+  }
+  .btn-admin {
+    @apply inline-flex items-center gap-2 rounded-md border border-slate bg-graphite px-3 py-1.5 text-sm text-bone transition-colors hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-admin-primary {
+    @apply inline-flex items-center gap-2 rounded-md bg-ember px-3 py-1.5 text-sm font-semibold text-void transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .input-admin {
+    @apply w-full rounded-md border border-slate bg-graphite px-3 py-2 text-sm text-bone outline-none placeholder:text-ash focus:border-ember;
+  }
+  .table-admin {
+    @apply w-full border-collapse text-sm;
+  }
+  .table-admin th {
+    @apply border-b border-slate px-3 py-2 text-left font-mono text-[0.625rem] uppercase tracking-[0.18em] text-fog;
+  }
+  .table-admin td {
+    @apply border-b border-graphite px-3 py-2.5 align-middle;
+  }
+  .pill {
+    @apply inline-block rounded-pill border border-slate px-2 py-0.5 font-mono text-[0.625rem] uppercase tracking-[0.14em];
+  }
+}

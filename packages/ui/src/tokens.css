@@ -1,0 +1,206 @@
+/**
+ * Wii design tokens — canonical CSS custom properties.
+ * Extracted from the brand design system. apps/web currently keeps its own
+ * inline copy in app/globals.css (migration to this file is a pending
+ * cleanup); apps/admin consumes this file directly. Keep the two in sync
+ * until the web migration lands.
+ */
+:root {
+  /* ---- Base neutrals (the dark spine of the brand) ---- */
+  --void: #050506;
+  --ink: #0b0b0e;
+  --charcoal: #131318;
+  --graphite: #1b1b21;
+  --slate: #26262e;
+  --steel: #3a3a45;
+  --ash: #6a6a77;
+  --fog: #9a9aa6;
+  --smoke: #c7c7d0;
+
+  /* ---- Warm off-whites (the "sand/light" pole) ---- */
+  --sand: #efe7d6;
+  --bone: #fbf8f1;
+  --linen: #f2ece0;
+
+  /* ---- Accent: EMBER (primary signature) ---- */
+  --ember-100: #ffe4d8;
+  --ember-300: #ff9e7a;
+  --ember-500: #ff4d1f;
+  --ember-600: #ed3a0e;
+  --ember-700: #c42c06;
+
+  /* ---- Accent: AZURE (electric secondary / cool club light) ---- */
+  --azure-300: #8fb4ff;
+  --azure-500: #2e6bff;
+  --azure-600: #1a52e8;
+
+  /* ---- Accent: HAZE (purple glow / tertiary depth) ---- */
+  --haze-400: #9a6cf0;
+  --haze-500: #7b36e3;
+  --haze-600: #6322c4;
+
+  /* ---- Accent: GOLD (VIP / membership) ---- */
+  --gold-300: #f0d9a0;
+  --gold-500: #d8b05a;
+  --gold-600: #b98f3c;
+
+  /* ---- Functional / status ---- */
+  --go-500: #3fd27e;
+  --go-600: #25b566;
+  --warn-500: var(--ember-500);
+  --stop-500: #5a5a66;
+
+  /* ---- Semantic aliases ---- */
+  --bg: var(--void);
+  --bg-elevated: var(--ink);
+  --surface: var(--graphite);
+  --surface-2: var(--charcoal);
+  --surface-raise: var(--slate);
+  --surface-light: var(--bone);
+
+  --border: var(--steel);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  --text: var(--sand);
+  --text-strong: var(--bone);
+  --text-muted: var(--fog);
+  --text-faint: var(--ash);
+  --text-on-light: var(--ink);
+
+  --accent: var(--ember-500);
+  --accent-hover: var(--ember-600);
+  --accent-press: var(--ember-700);
+  --accent-2: var(--azure-500);
+  --accent-3: var(--haze-500);
+  --accent-vip: var(--gold-500);
+  --on-accent: var(--void);
+
+  /* Status semantics for ticketing */
+  --status-available: var(--go-500);
+  --status-limited: var(--ember-500);
+  --status-soldout: var(--stop-500);
+  --status-invite: var(--haze-400);
+  --status-earlybird: var(--gold-500);
+
+  /* Signature glows */
+  --glow-ember: radial-gradient(60% 60% at 50% 0%, rgba(255, 77, 31, 0.45), transparent 70%);
+  --glow-azure: radial-gradient(60% 60% at 50% 100%, rgba(46, 107, 255, 0.4), transparent 70%);
+  --glow-haze: radial-gradient(50% 50% at 100% 0%, rgba(123, 54, 227, 0.35), transparent 70%);
+  --night-wash: linear-gradient(180deg, #0b0b0e 0%, #131318 55%, #050506 100%);
+  --ember-sweep: linear-gradient(100deg, var(--ember-600) 0%, var(--ember-500) 45%, var(--haze-500) 110%);
+
+  /* ---- Type families ---- */
+  --font-display: "Archivo Expanded", "Archivo", system-ui, sans-serif;
+  --font-ui: "Archivo", system-ui, -apple-system, sans-serif;
+  --font-mono: "Space Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  /* ---- Weights ---- */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semi: 600;
+  --fw-bold: 700;
+  --fw-x: 800;
+  --fw-black: 900;
+
+  /* ---- Fluid display scale ---- */
+  --t-hero: clamp(3.25rem, 11vw, 9.5rem);
+  --t-d1: clamp(2.75rem, 7vw, 6rem);
+  --t-d2: clamp(2.25rem, 5vw, 4rem);
+  --t-h1: clamp(2rem, 3.5vw, 3rem);
+  --t-h2: clamp(1.5rem, 2.4vw, 2.25rem);
+  --t-h3: clamp(1.25rem, 1.6vw, 1.6rem);
+  --t-h4: 1.125rem;
+  --t-lg: 1.1875rem;
+  --t-base: 1rem;
+  --t-sm: 0.875rem;
+  --t-xs: 0.75rem;
+
+  /* ---- Line heights ---- */
+  --lh-tight: 0.92;
+  --lh-snug: 1.08;
+  --lh-base: 1.55;
+  --lh-relaxed: 1.7;
+
+  /* ---- Letter spacing ---- */
+  --ls-display: -0.02em;
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+  --ls-wide: 0.08em;
+  --ls-wider: 0.22em;
+
+  /* ---- Spacing scale (8px base) ---- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-11: 192px;
+
+  /* ---- Section rhythm ---- */
+  --section-y: clamp(64px, 10vw, 160px);
+  --section-gap: clamp(32px, 5vw, 72px);
+
+  /* ---- Layout ---- */
+  --container: 1280px;
+  --container-wide: 1520px;
+  --container-narrow: 760px;
+  --gutter: clamp(20px, 5vw, 64px);
+  --grid-gap: clamp(16px, 1.6vw, 28px);
+
+  /* ---- Control sizing ---- */
+  --control-sm: 36px;
+  --control-md: 44px;
+  --control-lg: 56px;
+  --control-xl: 64px;
+
+  /* ---- Radii ---- */
+  --radius-0: 0;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* ---- Borders ---- */
+  --hairline: 1px solid var(--border-soft);
+  --edge: 1px solid var(--border-strong);
+
+  /* ---- Shadows ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.65);
+  --shadow-pop: 0 32px 90px rgba(0, 0, 0, 0.7);
+  --ring: 0 0 0 3px rgba(255, 77, 31, 0.45);
+  --ring-azure: 0 0 0 3px rgba(46, 107, 255, 0.45);
+  --glow-cta: 0 8px 30px rgba(255, 77, 31, 0.35);
+  --glow-cta-hi: 0 10px 44px rgba(255, 77, 31, 0.55);
+
+  /* ---- Blur / glass ---- */
+  --blur-sm: 8px;
+  --blur-md: 16px;
+  --blur-lg: 28px;
+  --glass: rgba(11, 11, 14, 0.62);
+  --glass-strong: rgba(5, 5, 6, 0.82);
+  --grain-opacity: 0.06;
+
+  /* ---- Motion ---- */
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 480ms;
+  --dur-cinema: 900ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-snap: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-linear: linear;
+  --t-hover: all var(--dur-fast) var(--ease-out);
+  --t-ui: all var(--dur-base) var(--ease-out);
+  --t-reveal: opacity var(--dur-cinema) var(--ease-out), transform var(--dur-cinema) var(--ease-out);
+}
