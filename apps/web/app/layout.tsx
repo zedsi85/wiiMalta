@@ -1,11 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./cinema.css";
-import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
-import CustomCursor from "@/components/layout/CustomCursor";
-import FluidBackground from "@/components/webgl/FluidBackground";
-import { Navbar } from "@/components/layout/Navbar";
-import { ConditionalFooter } from "@/components/layout/ConditionalFooter";
 
 // Resolve the public origin for canonical/OG URLs. On Vercel, VERCEL_URL is set
 // automatically per deployment; set NEXT_PUBLIC_SITE_URL to pin a custom domain.
@@ -34,6 +29,11 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+/**
+ * Root layout is deliberately bare: fonts, global styles, metadata. The
+ * experience shells live in the route groups — (marketing) keeps the full
+ * cinematic stack; (platform) will lean out when transactional flows land.
+ */
 export default function RootLayout({
   children,
 }: {
@@ -41,22 +41,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <SmoothScrollProvider>
-          {/* Fixed cinematic visual layers (z 0–1) */}
-          <FluidBackground mood="hero" />
-          <div id="grain" aria-hidden="true" />
-          <div id="vignette" aria-hidden="true" />
-
-          {/* Custom glow cursor (fine pointers only) */}
-          <CustomCursor />
-
-          {/* Chrome + content */}
-          <Navbar />
-          <div className="page-shell">{children}</div>
-          <ConditionalFooter />
-        </SmoothScrollProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

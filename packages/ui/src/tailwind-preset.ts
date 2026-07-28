@@ -1,18 +1,14 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Wii Event Malta — Tailwind theme.
- * The canonical design tokens live as CSS custom properties in app/globals.css
- * (ported verbatim from the brand design system). Here we surface the most-used
- * ones to Tailwind so utility classes stay on-brand. Prefer the CSS variables
- * for anything token-driven so there is a single source of truth.
+ * Wii design-system Tailwind preset.
+ * The canonical design tokens are CSS custom properties (currently declared in
+ * apps/web/app/globals.css, ported verbatim from the brand design system); this
+ * preset surfaces the most-used ones as utility classes so every Wii app stays
+ * on-brand. Prefer the CSS variables for anything token-driven so there is a
+ * single source of truth.
  */
-const config: Config = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./lib/**/*.{ts,tsx}",
-  ],
+export const wiiPreset: Partial<Config> = {
   theme: {
     extend: {
       colors: {
@@ -87,7 +83,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
 };
 
-export default config;
+export default wiiPreset;

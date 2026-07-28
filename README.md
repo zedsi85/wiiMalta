@@ -1,86 +1,52 @@
-# Wii Event Malta — Website
+# Wii Malta — Event OS
 
-> Malta After Dark. A premium, underground, Mediterranean nightlife event brand &
-> ticketing platform. Curated nights across the island — connected after dark.
+> Malta After Dark. The Wii Malta monorepo: cinematic marketing site today,
+> full event platform (ticketing, wallet, check-in, ambassadors, admin, mobile)
+> as it ships.
 
-A cinematic, highly dynamic events & ticketing site built from the **Wii Event
-Malta** design system. The homepage is a nine-chapter scroll journey; the rest is
-a full ticketing flow (events → detail → checkout → QR).
+## Layout
 
-## Stack
-
-- **Next.js 14** (App Router) + **TypeScript**
-- **Tailwind CSS** (theme surfaces the canonical CSS-variable design tokens)
-- **GSAP** + **ScrollTrigger** — scroll choreography, parallax, pinned gallery
-- **Lenis** — smooth scroll, wired into ScrollTrigger
-- **Three.js** — cursor-reactive fluid "nightlife paint" background (per-section palettes)
-- Custom glow cursor + magnetic CTAs
-- `lucide-react` available for icons
+```
+apps/
+  web/          Next.js — marketing site + web platform
+                  app/(marketing)/  cinematic experience (/, about, community, partners, team)
+                  app/(platform)/   events, checkout — future: account, tickets, ambassador
+packages/
+  ui/           Design system — TS tokens + Tailwind preset (@wii/ui)
+  core/         Domain logic — money (cents), state machines (@wii/core)
+  db/           Drizzle schema for Postgres (@wii/db) — migrations start Phase 1
+docs/
+  architecture/ Event OS design docs: state machines, checkout flow
+```
 
 ## Run
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # production build
+npm run dev        # turbo → next dev (apps/web) @ http://localhost:3000
+npm run build      # turbo → build all workspaces
+npm run typecheck  # tsc across all workspaces
+npm run lint
 ```
+
+Node ≥ 18.18 (pinned to 22 via `.nvmrc`). npm workspaces + Turborepo.
 
 ## Deploy (Vercel)
 
-Zero-config — Vercel detects Next.js automatically (Build: `next build`,
-Output: `.next`). Just import the repo and deploy.
-
-- **Node:** pinned to 22 via `.nvmrc` / `engines` (Next 14 needs ≥ 18.18).
-- **Env:** optional `NEXT_PUBLIC_SITE_URL` pins the canonical/OG origin to your
-  custom domain. Without it, canonical URLs fall back to the per-deployment
-  `VERCEL_URL` (see `.env.example`). No other env vars are required.
-
-## Routes
-
-| Route | What |
-|---|---|
-| `/` | Cinematic homepage — 9 chapters (Enter the Night → … → Final CTA) |
-| `/events` | Listing with live music / location / availability filters |
-| `/events/[slug]` | Event detail: hero poster, sticky purchase panel, lineup, info, map, FAQ |
-| `/checkout` | 3-step checkout (tickets → details → payment) + promo + QR confirmation |
-| `/community` | Digital access pass (utility/loyalty framing), perks, waitlist |
-| `/partners` | Partner categories, benefits, contact form |
-| `/about` | Brand story, mission, philosophy |
+Set the project **Root Directory** to `apps/web` (Vercel auto-detects Next.js
+and runs the install at the repo root for workspaces). Optional env:
+`NEXT_PUBLIC_SITE_URL` pins the canonical/OG origin (see apps/web/.env.example).
 
 ## Architecture
 
-```
-app/                 routes + globals.css (design tokens) + cinema.css (homepage chapters)
-components/
-  layout/            Navbar, Footer, SmoothScrollProvider, CustomCursor, MoodSetter
-  sections/          the 9 homepage chapter components
-  ui/                Button, MagneticButton, EventCard, TicketTierCard, Countdown,
-                     Badge, Tag, Input, QuantitySelector, ArtistCard, MembershipPass,
-                     QRTicket, AnimatedHeading, SectionLabel, Section, Reveal, WiiMark
-  screens/           EventDetail (client screen behind the [slug] route)
-  webgl/             FluidBackground (Three.js shader quad + mood system)
-lib/                 events (mock data), cart, animations, lenis, qr, utils
-styles/              tokens.ts (TS mirror of the CSS-variable tokens)
-```
+The platform build-out is specified in [docs/architecture](docs/architecture):
+[state machines](docs/architecture/state-machines.md) ·
+[checkout flow](docs/architecture/checkout-flow.md) ·
+schema at [packages/db/src/schema.ts](packages/db/src/schema.ts).
 
-### Design tokens
-The single source of truth is the set of CSS custom properties in
-`app/globals.css` (ported verbatim from the brand design system). `tailwind.config.ts`
-surfaces the common ones to utility classes; `styles/tokens.ts` mirrors values
-needed in JS (e.g. the shader palettes).
+Phase roadmap: **0** monorepo foundation (this) → **1** real data (Postgres +
+admin CRUD) → **2** money (auth, Stripe, tickets) → **3** operations (check-in,
+ambassadors) → **4** mobile (Expo).
 
-## Notes for extending
-
-- **Imagery** is all placeholder `MediaSlot` / gradient zones marked `@asset` —
-  drop in real event photography/video.
-- **Payments** are not wired — `lib/cart.ts` + the checkout screen are scaffolding
-  for Stripe / a custom ticketing + QR service.
-- **Community pass / membership** is framed strictly as **access & utility**
-  (early tickets, drops, perks) — never investment. Keep the "Soon" framing until
-  it ships.
-- The **QR ticket** is a stylized visual concept, not a scannable code.
-- Everything respects `prefers-reduced-motion`; the custom cursor and heavy
-  interactions are disabled on touch / coarse pointers.
-
-Fonts are curated substitutions (Archivo / Archivo Expanded / Space Mono, via
-Google Fonts) — swap in `app/globals.css` if you license a display face.
+The web app's own docs (routes, design tokens, notes for extending) are in
+[apps/web/README.md](apps/web/README.md).

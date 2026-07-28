@@ -1,36 +1,23 @@
 {
-  "name": "wii-event-malta",
+  "name": "wii-malta",
   "version": "0.1.0",
   "private": true,
-  "description": "Wii Event Malta — cinematic, premium events & ticketing platform. Malta After Dark.",
+  "description": "Wii Malta — Event OS monorepo. Marketing site + platform (apps) and shared domain/design packages.",
+  "packageManager": "npm@10.7.0",
   "engines": {
     "node": ">=18.18.0"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "gsap": "^3.12.5",
-    "lenis": "^1.1.18",
-    "lucide-react": "^0.460.0",
-    "next": "14.2.35",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "three": "^0.160.1"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.160.0",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.35",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15",
-    "typescript": "^5.6.3"
+    "turbo": "^2.3.3"
   }
 }

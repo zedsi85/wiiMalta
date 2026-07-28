@@ -1,0 +1,17 @@
+{
+  "name": "@wii/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Wii Event OS — domain types, money math, and state-machine definitions shared by web, admin, api, and mobile.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./money": "./src/money.ts",
+    "./states": "./src/states.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

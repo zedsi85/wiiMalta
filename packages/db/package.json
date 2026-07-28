@@ -1,0 +1,22 @@
+{
+  "name": "@wii/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Wii Event OS — Drizzle schema + migrations (Postgres). Schema mirrors docs/architecture/db-schema.ts; migrations start in Phase 1 when a database exists.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.36.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.28.1",
+    "typescript": "^5.6.3"
+  }
+}
