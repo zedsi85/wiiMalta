@@ -159,13 +159,15 @@ export async function finalizePaidOrder(args: {
         if (attribution) {
           const rateBps =
             code.commissionBpsOverride ?? profile.commissionBps ?? org.defaultCommissionBps;
+          const amountCents =
+            Math.round((order.subtotalCents * rateBps) / 10_000) + (profile.fixedBonusCents ?? 0);
           await tx.insert(s.commissions).values({
             attributionId: attribution.id,
             orderId: order.id,
             ambassadorId: profile.id,
             organizerId: order.organizerId,
             rateBps,
-            amountCents: Math.round((order.subtotalCents * rateBps) / 10_000),
+            amountCents,
             status: "pending",
             payableAt: new Date(event.endAt.getTime() + COMMISSION_GRACE_MS),
           });

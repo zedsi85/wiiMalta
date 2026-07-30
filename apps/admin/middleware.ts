@@ -32,14 +32,19 @@ export async function middleware(request: NextRequest) {
   const isPublic =
     pathname.startsWith("/login") ||
     pathname.startsWith("/auth") ||
-    pathname.startsWith("/guard/login");
+    pathname.startsWith("/guard/login") ||
+    pathname.startsWith("/ambassador/login");
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     // API adapters answer 401 themselves; pages bounce to the right login
     if (pathname.startsWith("/guard/api")) {
       return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
     }
-    url.pathname = pathname.startsWith("/guard") ? "/guard/login" : "/login";
+    url.pathname = pathname.startsWith("/guard")
+      ? "/guard/login"
+      : pathname.startsWith("/ambassador")
+        ? "/ambassador/login"
+        : "/login";
     return NextResponse.redirect(url);
   }
   return response;

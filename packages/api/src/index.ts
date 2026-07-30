@@ -6,3 +6,5 @@ export * from "./redeem";
 export * from "./comp";
 export * from "./guard";
 export * from "./analytics";
+export * from "./ambassador";
+export * from "./payout-admin";

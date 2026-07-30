@@ -109,6 +109,7 @@ export const ambassadorStatus = pgEnum("ambassador_status", [
   "approved",
   "suspended",
   "rejected",
+  "verified", // approved + identity/payment verified
 ]);
 
 export const referralCodeStatus = pgEnum("referral_code_status", [
@@ -118,11 +119,23 @@ export const referralCodeStatus = pgEnum("referral_code_status", [
 ]);
 
 export const commissionStatus = pgEnum("commission_status", [
-  "pending", // order paid; inside refund window
-  "payable", // event completed + grace elapsed; eligible for next payout
-  "paid", // included in a settled payout
-  "clawed_back", // source order refunded after accrual
-  "void", // fraud / manual invalidation
+  "pending", // PENDING — order paid; inside refund window
+  "payable", // LOCKED — matured (event end + grace); awaiting admin approval
+  "paid", // PAID — included in a settled payout
+  "clawed_back", // REFUNDED — source order refunded after accrual
+  "void", // CANCELLED — fraud / manual invalidation
+  "approved", // APPROVED — admin-approved for the next payout run
+  "processing", // PROCESSING — payout run in flight
+  "rejected", // REJECTED — admin declined
+]);
+
+export const paymentMethodKind = pgEnum("payment_method_kind", [
+  "iban",
+  "bank_transfer",
+  "revolut",
+  "paypal",
+  "wise",
+  "crypto", // future
 ]);
 
 export const payoutStatus = pgEnum("payout_status", [
@@ -654,6 +667,8 @@ export const ambassadorProfiles = pgTable(
     status: ambassadorStatus("status").notNull().default("applied"),
     /** Overrides organizer default; per-code override trumps both. */
     commissionBps: smallint("commission_bps"),
+    /** Flat bonus added per attributed order at accrual time. */
+    fixedBonusCents: integer("fixed_bonus_cents").notNull().default(0),
     approvedBy: uuid("approved_by").references(() => users.id),
     approvedAt: timestamp("approved_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -740,6 +755,46 @@ export const payouts = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("payouts_ambassador_idx").on(t.ambassadorId)]
+);
+
+/**
+ * Ambassador payment details — encrypted at rest (AES-256-GCM via
+ * PAYMENT_ENC_KEY; @wii/core encryptJson). Plaintext never touches the DB;
+ * `displayHint` is the masked label shown in UIs. One active method per
+ * ambassador (partial unique index).
+ */
+export const ambassadorPaymentMethods = pgTable(
+  "ambassador_payment_methods",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ambassadorId: uuid("ambassador_id").notNull().references(() => ambassadorProfiles.id),
+    kind: paymentMethodKind("kind").notNull(),
+    /** v1.<iv>.<ciphertext>.<tag> — AES-256-GCM envelope. */
+    detailsEncrypted: text("details_encrypted").notNull(),
+    /** Masked, safe-to-render label, e.g. "IBAN ····4402" or "PayPal s···@x.com". */
+    displayHint: text("display_hint").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("payment_methods_active_uq")
+      .on(t.ambassadorId)
+      .where(sql`${t.isActive} = true`),
+    index("payment_methods_ambassador_idx").on(t.ambassadorId),
+  ]
+);
+
+/** Referral link visits — the top of the conversion funnel (set by /api/ref). */
+export const referralVisits = pgTable(
+  "referral_visits",
+  {
+    id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+    codeId: uuid("code_id").notNull().references(() => referralCodes.id),
+    ambassadorId: uuid("ambassador_id").notNull().references(() => ambassadorProfiles.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("referral_visits_amb_idx").on(t.ambassadorId, t.createdAt)]
 );
 
 /* ================================================================== */

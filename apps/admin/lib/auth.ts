@@ -138,3 +138,36 @@ export async function guardFromSession(): Promise<GuardContext | null> {
   if (!row) return null;
   return guardContextFor(row.id, row.platformRole, row.email, row.displayName);
 }
+
+/* ---------------- Ambassador (affiliate portal) ---------------- */
+
+export interface AmbassadorContext {
+  userId: string;
+  profileId: string;
+  status: string;
+  email: string;
+  displayName: string | null;
+}
+
+/** Page gate for /ambassador/*. Approved|verified → full access; applied →
+ *  review screen; suspended/rejected/none → denied. Own data only: pages
+ *  must query exclusively via ctx.profileId. */
+export async function requireAmbassador(): Promise<AmbassadorContext> {
+  const row = await resolveSessionUser();
+  if (!row) redirect("/ambassador/login");
+  const d = db();
+  const profile = await d.query.ambassadorProfiles.findFirst({
+    where: eq(s.ambassadorProfiles.userId, row.id),
+  });
+  if (!profile) redirect("/ambassador/login?error=denied");
+  if (profile.status === "suspended" || profile.status === "rejected") {
+    redirect("/ambassador/login?error=denied");
+  }
+  return {
+    userId: row.id,
+    profileId: profile.id,
+    status: profile.status,
+    email: row.email,
+    displayName: row.displayName,
+  };
+}

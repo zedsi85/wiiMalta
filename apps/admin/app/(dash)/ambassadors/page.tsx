@@ -6,6 +6,7 @@ import {
   setAmbassadorStatus,
   createReferralCode,
   setReferralCodeStatus,
+  setAmbassadorTermsAction,
 } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export default async function AmbassadorsPage() {
         id: s.ambassadorProfiles.id,
         status: s.ambassadorProfiles.status,
         commissionBps: s.ambassadorProfiles.commissionBps,
+        fixedBonusCents: s.ambassadorProfiles.fixedBonusCents,
         createdAt: s.ambassadorProfiles.createdAt,
         email: s.users.email,
         name: s.users.displayName,
@@ -144,8 +146,12 @@ export default async function AmbassadorsPage() {
                   <td>
                     <span className={`pill ${STATUS_COLOR[p.status] ?? ""}`}>{p.status}</span>
                   </td>
-                  <td className="text-right font-mono">
-                    {p.commissionBps != null ? `${p.commissionBps / 100}%` : "default 10%"}
+                  <td className="text-right">
+                    <form action={setAmbassadorTermsAction.bind(null, p.id)} className="inline-flex items-center justify-end gap-1">
+                      <input name="bps" type="number" min={0} max={5000} defaultValue={p.commissionBps ?? ""} placeholder="bps" className="input-admin w-20 py-1 text-xs" />
+                      <input name="bonusEur" type="number" step="0.5" min={0} defaultValue={(p.fixedBonusCents / 100) || ""} placeholder="+€/order" className="input-admin w-20 py-1 text-xs" />
+                      <button className="btn-admin py-1 text-xs">Set</button>
+                    </form>
                   </td>
                   <td className="text-right">
                     {p.status !== "approved" && (

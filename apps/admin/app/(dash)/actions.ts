@@ -436,3 +436,72 @@ export async function removeGuardAssignmentAction(eventId: string, userId: strin
   await audit(staff, "guard.unassign", "scanner_assignment", `${eventId}:${userId}`, null, null);
   revalidatePath("/guards");
 }
+
+/* ---------------- Ambassador payouts ---------------- */
+
+import {
+  bulkTransition,
+  runCommissionMaturity,
+  settleCommissions,
+  transitionCommission,
+} from "@wii/api";
+import type { CommissionStatus } from "@wii/core";
+
+function selectedIds(formData: FormData): string[] {
+  return formData.getAll("ids").map(String).filter(Boolean);
+}
+
+export async function commissionBulkAction(formData: FormData) {
+  const staff = await requireStaff();
+  const op = String(formData.get("op") ?? "");
+  const ids = selectedIds(formData);
+  if (ids.length === 0) throw new Error("select at least one commission");
+
+  if (op === "paid") {
+    const reference = String(formData.get("reference") ?? "").trim();
+    if (!reference) throw new Error("payment reference required to mark paid");
+    const r = await settleCommissions(ids, { userId: staff.userId }, { reference });
+    await audit(staff, "payouts.settle_bulk", "commission", "batch", null, { ...r, reference });
+  } else {
+    const map: Record<string, CommissionStatus> = {
+      approve: "approved",
+      reject: "rejected",
+      processing: "processing",
+    };
+    const to = map[op];
+    if (!to) throw new Error("unknown operation");
+    const r = await bulkTransition(ids, to, { userId: staff.userId });
+    await audit(staff, `payouts.bulk_${op}`, "commission", "batch", null, r);
+  }
+  revalidatePath("/payouts");
+}
+
+export async function singleCommissionAction(id: string, to: CommissionStatus) {
+  const staff = await requireStaff();
+  const r = await transitionCommission(id, to, { userId: staff.userId });
+  if (!r.ok) throw new Error(r.error);
+  revalidatePath("/payouts");
+}
+
+export async function runMaturityAction() {
+  const staff = await requireStaff();
+  const n = await runCommissionMaturity({ userId: staff.userId });
+  await audit(staff, "payouts.maturity_run", "commission", "batch", null, { matured: n });
+  revalidatePath("/payouts");
+}
+
+export async function setAmbassadorTermsAction(profileId: string, formData: FormData) {
+  const staff = await requireStaff();
+  const bps = Number(formData.get("bps") ?? "");
+  const bonus = Math.round(Number(formData.get("bonusEur") ?? "0") * 100);
+  const d = db();
+  await d
+    .update(s.ambassadorProfiles)
+    .set({
+      commissionBps: Number.isFinite(bps) && bps > 0 ? bps : null,
+      fixedBonusCents: Number.isFinite(bonus) && bonus >= 0 ? bonus : 0,
+    })
+    .where(eq(s.ambassadorProfiles.id, profileId));
+  await audit(staff, "ambassador.terms", "ambassador_profile", profileId, null, { bps, bonus });
+  revalidatePath("/ambassadors");
+}

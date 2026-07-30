@@ -35,6 +35,12 @@ export default async function DashLayout({ children }: { children: React.ReactNo
           <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/ambassadors">
             Ambassadors
           </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/payouts">
+            Payouts
+          </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/reports">
+            Reports
+          </Link>
         </nav>
         <div className="mt-auto grid gap-3 pt-8">
           <div className="text-xs text-fog">

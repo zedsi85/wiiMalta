@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq, and, sql } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
+import { logReferralVisit } from "@wii/api";
 
 export const runtime = "nodejs";
 
@@ -23,7 +24,11 @@ export async function POST(req: NextRequest) {
   }
 
   const rows = await db()
-    .select({ id: s.referralCodes.id, code: s.referralCodes.code })
+    .select({
+      id: s.referralCodes.id,
+      code: s.referralCodes.code,
+      ambassadorId: s.referralCodes.ambassadorId,
+    })
     .from(s.referralCodes)
     .innerJoin(s.ambassadorProfiles, eq(s.referralCodes.ambassadorId, s.ambassadorProfiles.id))
     .where(
@@ -36,6 +41,9 @@ export async function POST(req: NextRequest) {
     .limit(1);
 
   if (rows.length === 0) return NextResponse.json({ ok: false }, { status: 404 });
+
+  // Conversion funnel: each validated landing is a visit
+  await logReferralVisit(rows[0].id, rows[0].ambassadorId).catch(() => {});
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set("wii_ref", rows[0].id, {

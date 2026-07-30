@@ -65,18 +65,36 @@ const HOLD_TRANSITIONS: Record<HoldStatus, readonly HoldStatus[]> = {
 /* ---------------- Commission ---------------- */
 
 export const COMMISSION_STATUSES = [
-  "pending",
-  "payable",
-  "paid",
-  "clawed_back",
-  "void",
+  "pending", // PENDING
+  "payable", // LOCKED (matured, awaiting approval)
+  "approved", // APPROVED (queued for payout)
+  "processing", // PROCESSING (payout run in flight)
+  "paid", // PAID
+  "rejected", // REJECTED (admin declined)
+  "clawed_back", // REFUNDED (source order refunded)
+  "void", // CANCELLED (fraud / manual)
 ] as const;
 export type CommissionStatus = (typeof COMMISSION_STATUSES)[number];
 
+/** Display labels for the affiliate-facing lifecycle names. */
+export const COMMISSION_LABELS: Record<CommissionStatus, string> = {
+  pending: "pending",
+  payable: "locked",
+  approved: "approved",
+  processing: "processing",
+  paid: "paid",
+  rejected: "rejected",
+  clawed_back: "refunded",
+  void: "cancelled",
+};
+
 const COMMISSION_TRANSITIONS: Record<CommissionStatus, readonly CommissionStatus[]> = {
   pending: ["payable", "clawed_back", "void"],
-  payable: ["paid", "clawed_back", "void"],
+  payable: ["approved", "rejected", "clawed_back", "void"],
+  approved: ["processing", "paid", "rejected", "clawed_back"],
+  processing: ["paid", "approved"], // back to approved = run rollback
   paid: ["clawed_back"], // post-payout clawback carries a negative balance forward
+  rejected: [],
   clawed_back: [],
   void: [],
 };
