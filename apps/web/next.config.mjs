@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   // Workspace packages ship raw TypeScript; Next transpiles them in-place.
-  transpilePackages: ["@wii/ui", "@wii/core", "@wii/db"],
+  transpilePackages: ["@wii/ui", "@wii/core", "@wii/db", "@wii/api"],
   experimental: {
     // Native/pg drivers must stay external to the server bundle.
     serverComponentsExternalPackages: ["pg"],

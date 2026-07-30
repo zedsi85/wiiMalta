@@ -323,3 +323,67 @@ export async function setReferralCodeStatus(codeId: string, status: "active" | "
   await audit(staff, `referral_code.${status}`, "referral_code", codeId, { status: row.status }, { status });
   revalidatePath("/ambassadors");
 }
+
+/* ---------------- Orders & tickets (ticketing slice) ---------------- */
+
+import {
+  refundOrderFully,
+  sweepExpiredOrders,
+  redeemTicket,
+  unredeemTicket,
+  revokeTicket,
+  issueCompTickets,
+  type RedeemResult,
+} from "@wii/api";
+
+export async function refundOrderAction(orderId: string, formData: FormData) {
+  const staff = await requireStaff();
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!reason) throw new Error("refund reason required");
+  await refundOrderFully({ orderId, reason, initiatedByUserId: staff.userId });
+  await audit(staff, "order.refund_full", "order", orderId, null, { reason });
+  revalidatePath("/orders");
+  revalidatePath(`/orders/${orderId}`);
+}
+
+export async function sweepOrdersAction() {
+  const staff = await requireStaff();
+  const n = await sweepExpiredOrders();
+  await audit(staff, "orders.sweep", "order", "batch", null, { expired: n });
+  revalidatePath("/orders");
+}
+
+export async function revokeTicketAction(ticketId: string, formData: FormData) {
+  const staff = await requireStaff();
+  const reason = String(formData.get("reason") ?? "").trim() || "admin revocation";
+  await revokeTicket({ ticketId, actorUserId: staff.userId, reason });
+  await audit(staff, "ticket.revoke", "ticket", ticketId, null, { reason });
+  revalidatePath("/tickets");
+}
+
+export async function unredeemTicketAction(ticketId: string) {
+  const staff = await requireStaff();
+  await unredeemTicket({ ticketId, actorUserId: staff.userId, reason: "door correction" });
+  await audit(staff, "ticket.unredeem", "ticket", ticketId, null, null);
+  revalidatePath("/tickets");
+  revalidatePath("/scan");
+}
+
+export async function compTicketsAction(formData: FormData) {
+  const staff = await requireStaff();
+  const eventId = String(formData.get("eventId") ?? "");
+  const tierId = String(formData.get("tierId") ?? "");
+  const email = String(formData.get("email") ?? "");
+  const qty = Number(formData.get("qty") ?? 1);
+  const result = await issueCompTickets({ eventId, tierId, email, qty, actorUserId: staff.userId });
+  await audit(staff, "ticket.comp", "order", result.orderId, null, { email, qty, serials: result.serials });
+  revalidatePath("/tickets");
+}
+
+export async function redeemAction(_prev: RedeemResult | null, formData: FormData): Promise<RedeemResult> {
+  const staff = await requireStaff();
+  const input = String(formData.get("code") ?? "");
+  const result = await redeemTicket({ tokenOrSerial: input, scannerUserId: staff.userId, gate: "admin" });
+  await audit(staff, "ticket.scan", "ticket", input.slice(0, 24), null, { ok: result.ok });
+  return result;
+}

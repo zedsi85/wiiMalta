@@ -20,6 +20,15 @@ export default async function DashLayout({ children }: { children: React.ReactNo
           <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/events">
             Events
           </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/orders">
+            Orders
+          </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/tickets">
+            Tickets
+          </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/scan">
+            Scan
+          </Link>
           <Link className="rounded-md px-3 py-2 hover:bg-graphite" href="/ambassadors">
             Ambassadors
           </Link>

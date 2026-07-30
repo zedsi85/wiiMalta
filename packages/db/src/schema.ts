@@ -432,6 +432,9 @@ export const orders = pgTable(
     refundedCents: integer("refunded_cents").notNull().default(0),
     /** Client-generated; dedupes create-order retries. */
     idempotencyKey: text("idempotency_key").notNull(),
+    /** Referral candidate captured from the wii_ref cookie at draft time;
+     *  locked into referral_attributions only at payment success. */
+    candidateReferralCodeId: uuid("candidate_referral_code_id"),
     /** Mirrors the holds' TTL while draft/pending; null once terminal. */
     expiresAt: timestamp("expires_at", { withTimezone: true }),
     placedAt: timestamp("placed_at", { withTimezone: true }), // payment attempt started
@@ -472,8 +475,12 @@ export const payments = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     orderId: uuid("order_id").notNull().references(() => orders.id),
-    stripePaymentIntentId: text("stripe_payment_intent_id").notNull().unique(),
-    stripeChargeId: text("stripe_charge_id"),
+    /** "revolut" | "mock" (dev) | future rails. */
+    provider: text("provider").notNull().default("revolut"),
+    /** Provider-side order/intent id (Revolut order id). */
+    providerOrderId: text("provider_order_id").notNull().unique(),
+    /** Provider-side payment/charge id, once known. */
+    providerPaymentId: text("provider_payment_id"),
     status: paymentStatus("status").notNull().default("created"),
     amountCents: integer("amount_cents").notNull(),
     /** Wii's cut on Connect destination charges. */
@@ -491,7 +498,7 @@ export const refunds = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     orderId: uuid("order_id").notNull().references(() => orders.id),
     paymentId: uuid("payment_id").notNull().references(() => payments.id),
-    stripeRefundId: text("stripe_refund_id").unique(),
+    providerRefundId: text("provider_refund_id").unique(),
     amountCents: integer("amount_cents").notNull(),
     reason: text("reason").notNull(), // required — this is a fraud surface
     status: refundStatus("status").notNull().default("pending"),

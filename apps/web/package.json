@@ -2,7 +2,7 @@
   "name": "@wii/web",
   "version": "0.1.0",
   "private": true,
-  "description": "Wii Event Malta — cinematic marketing site + web platform. Malta After Dark.",
+  "description": "Wii Event Malta \u2014 cinematic marketing site + web platform. Malta After Dark.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@revolut/checkout": "^1.1.25",
     "@wii/core": "*",
     "@wii/db": "*",
     "@wii/ui": "*",
@@ -18,13 +19,16 @@
     "lenis": "^1.1.18",
     "lucide-react": "^0.460.0",
     "next": "14.2.35",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "server-only": "0.0.1",
-    "three": "^0.160.1"
+    "three": "^0.160.1",
+    "@wii/api": "*"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/three": "^0.160.0",

@@ -22,6 +22,13 @@
       "when": 1785278265159,
       "tag": "0002_enable_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785423874174,
+      "tag": "0003_payments_provider_agnostic",
+      "breakpoints": true
     }
   ]
 }

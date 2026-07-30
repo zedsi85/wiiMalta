@@ -2,7 +2,7 @@
   "name": "@wii/admin",
   "version": "0.1.0",
   "private": true,
-  "description": "Wii Event OS — admin console (events, ambassadors, referrals).",
+  "description": "Wii Event OS \u2014 admin console (events, ambassadors, referrals).",
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
@@ -19,7 +19,8 @@
     "next": "14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "@wii/api": "*"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
