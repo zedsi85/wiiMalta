@@ -605,11 +605,39 @@ export const redemptions = pgTable(
     wasOffline: boolean("was_offline").notNull().default(false),
     /** Device-generated UUID — idempotency for offline replay. */
     clientScanId: uuid("client_scan_id").notNull().unique(),
+    /** Scanner device descriptor (user agent short form). */
+    device: text("device"),
+    /** Optional geolocation "lat,lng" captured at scan time. */
+    location: text("location"),
   },
   (t) => [
     // one successful redemption per ticket, ever
     uniqueIndex("redemptions_ticket_uq").on(t.ticketId),
     index("redemptions_event_idx").on(t.eventId, t.scannedAt),
+  ]
+);
+
+/**
+ * Door telemetry — every scan attempt (including rejects and duplicate
+ * flags), powering guard/day statistics. Successful admissions ALSO write a
+ * `redemptions` row (source of truth); this table is analytics-grade.
+ */
+export const scanAttempts = pgTable(
+  "scan_attempts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    guardUserId: uuid("guard_user_id").notNull().references(() => users.id),
+    eventId: uuid("event_id").references(() => events.id),
+    ticketId: uuid("ticket_id"),
+    /** admitted | duplicate | invalid | revoked | expired_qr | wrong_version | not_active | wrong_event | queued_sync */
+    result: text("result").notNull(),
+    device: text("device"),
+    clientScanId: text("client_scan_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("scan_attempts_guard_idx").on(t.guardUserId, t.createdAt),
+    index("scan_attempts_event_idx").on(t.eventId, t.createdAt),
   ]
 );
 

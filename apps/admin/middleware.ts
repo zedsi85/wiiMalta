@@ -29,15 +29,22 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isPublic = pathname.startsWith("/login") || pathname.startsWith("/auth");
+  const isPublic =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/guard/login");
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    // API adapters answer 401 themselves; pages bounce to the right login
+    if (pathname.startsWith("/guard/api")) {
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    }
+    url.pathname = pathname.startsWith("/guard") ? "/guard/login" : "/login";
     return NextResponse.redirect(url);
   }
   return response;
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|ico)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|ico|webmanifest|js|json)$).*)"],
 };

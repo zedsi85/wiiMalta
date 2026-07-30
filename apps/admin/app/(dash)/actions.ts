@@ -387,3 +387,52 @@ export async function redeemAction(_prev: RedeemResult | null, formData: FormDat
   await audit(staff, "ticket.scan", "ticket", input.slice(0, 24), null, { ok: result.ok });
   return result;
 }
+
+/* ---------------- Guards (door crew) ---------------- */
+
+export async function assignGuardAction(formData: FormData) {
+  const staff = await requireStaff();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const name = String(formData.get("name") ?? "").trim();
+  const eventId = String(formData.get("eventId") ?? "");
+  const gate = String(formData.get("gate") ?? "").trim() || null;
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("valid email required");
+  if (!eventId) throw new Error("event required");
+
+  const d = db();
+  const org = await d.query.organizers.findFirst({ where: eq(s.organizers.slug, "wii-malta") });
+  if (!org) throw new Error("organizer missing");
+
+  let user = await d.query.users.findFirst({ where: eq(s.users.email, email) });
+  if (!user) {
+    [user] = await d
+      .insert(s.users)
+      .values({ email, displayName: name || null, isGuest: false })
+      .returning();
+  }
+
+  await d
+    .insert(s.organizerMembers)
+    .values({ organizerId: org.id, userId: user.id, role: "scanner", invitedBy: staff.userId })
+    .onConflictDoNothing();
+  await d
+    .insert(s.scannerAssignments)
+    .values({ eventId, userId: user.id, gate, createdBy: staff.userId })
+    .onConflictDoNothing();
+
+  await audit(staff, "guard.assign", "scanner_assignment", `${eventId}:${user.id}`, null, {
+    email,
+    gate,
+  });
+  revalidatePath("/guards");
+}
+
+export async function removeGuardAssignmentAction(eventId: string, userId: string) {
+  const staff = await requireStaff();
+  const d = db();
+  await d
+    .delete(s.scannerAssignments)
+    .where(and(eq(s.scannerAssignments.eventId, eventId), eq(s.scannerAssignments.userId, userId)));
+  await audit(staff, "guard.unassign", "scanner_assignment", `${eventId}:${userId}`, null, null);
+  revalidatePath("/guards");
+}

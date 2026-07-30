@@ -86,6 +86,7 @@ export default function ScanPage() {
                     revoked: "Ticket was revoked (refund or fraud).",
                     not_active: "Ticket is not in an admittable state.",
                     wrong_version: "Outdated QR (screenshot?) — ask for the live ticket page.",
+                    wrong_event: "Ticket belongs to a different event.",
                   }[result.reason]
                 }
               </div>

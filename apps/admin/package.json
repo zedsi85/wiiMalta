@@ -2,7 +2,7 @@
   "name": "@wii/admin",
   "version": "0.1.0",
   "private": true,
-  "description": "Wii Event OS \u2014 admin console (events, ambassadors, referrals).",
+  "description": "Wii Event OS — admin console (events, ambassadors, referrals).",
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
@@ -13,14 +13,15 @@
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
+    "@wii/api": "*",
     "@wii/core": "*",
     "@wii/db": "*",
     "@wii/ui": "*",
     "next": "14.2.35",
+    "qr-scanner": "^1.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "server-only": "0.0.1",
-    "@wii/api": "*"
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

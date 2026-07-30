@@ -8,8 +8,10 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
+  const nextParam = searchParams.get("next");
+  const next = nextParam && /^\/[a-zA-Z0-9/_-]*$/.test(nextParam) ? nextParam : "/";
 
-  const redirectTo = NextResponse.redirect(`${origin}/`);
+  const redirectTo = NextResponse.redirect(`${origin}${next}`);
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
