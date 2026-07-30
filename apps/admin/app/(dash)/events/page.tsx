@@ -51,7 +51,12 @@ export default async function EventsPage() {
     <>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Events</h1>
-        <span className="label">{rows.length} total</span>
+        <div className="flex items-center gap-4">
+          <span className="label">{rows.length} total</span>
+          <Link href="/events/new" className="btn-admin-primary">
+            + New event
+          </Link>
+        </div>
       </div>
       <div className="card overflow-x-auto p-0">
         <table className="table-admin">

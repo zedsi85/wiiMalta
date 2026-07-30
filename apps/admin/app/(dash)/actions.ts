@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { eq, and, sql } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
-import { assertTransition } from "@wii/core";
+import { assertTransition, centsFromLegacyString } from "@wii/core";
 import { requireStaff, type StaffContext } from "@/lib/auth";
+import { localToUtc } from "@/lib/time";
 
 /** Append-only audit trail for every privileged mutation. */
 async function audit(
@@ -26,6 +28,142 @@ async function audit(
 }
 
 /* ---------------- Events ---------------- */
+
+export async function createEvent(formData: FormData) {
+  const staff = await requireStaff();
+  const d = db();
+
+  const title = String(formData.get("title") ?? "").trim();
+  const slug = String(formData.get("slug") ?? "").trim().toLowerCase();
+  const startLocal = String(formData.get("startAt") ?? "");
+  const endLocal = String(formData.get("endAt") ?? "");
+  const kind = String(formData.get("kind") ?? "").trim() || "Night";
+  const blurb = String(formData.get("blurb") ?? "").trim();
+  const genres = String(formData.get("genres") ?? "")
+    .split(",")
+    .map((g) => g.trim())
+    .filter(Boolean);
+  const tint = String(formData.get("tint") ?? "") || "linear-gradient(150deg,#241318,#0a0a0c 72%)";
+  const age = Number(formData.get("age") ?? "") || null;
+  const unlisted = formData.get("unlisted") === "on";
+
+  if (!title) throw new Error("title required");
+  if (!/^[a-z0-9-]{3,60}$/.test(slug)) throw new Error("slug: lowercase letters, digits, dashes");
+  const start = localToUtc(startLocal);
+  const end = localToUtc(endLocal);
+  if (end <= start) throw new Error("end must be after start");
+
+  // Venue: pick existing or create inline
+  let venueId = String(formData.get("venueId") ?? "");
+  const newVenueName = String(formData.get("newVenueName") ?? "").trim();
+  const newVenueCity = String(formData.get("newVenueCity") ?? "").trim();
+
+  // Tiers (parallel arrays; blank names are skipped)
+  const names = formData.getAll("tierName").map(String);
+  const prices = formData.getAll("tierPrice").map(String);
+  const caps = formData.getAll("tierCap").map(String);
+  const perks = formData.getAll("tierPerks").map(String);
+  const vips = formData.getAll("tierVip").map(String); // row indexes, e.g. "0","2"
+  const tierRows = names
+    .map((name, i) => ({
+      name: name.trim(),
+      priceCents: prices[i] ? centsFromLegacyString(prices[i]) : NaN,
+      capacity: parseInt(caps[i] ?? "", 10),
+      perks: (perks[i] ?? "")
+        .split(",")
+        .map((p) => p.trim())
+        .filter(Boolean),
+      vip: vips.includes(String(i)),
+    }))
+    .filter((t) => t.name.length > 0);
+  if (tierRows.length === 0) throw new Error("at least one tier required");
+  for (const t of tierRows) {
+    if (!Number.isFinite(t.priceCents) || t.priceCents < 0) throw new Error(`tier "${t.name}": bad price`);
+    if (!Number.isInteger(t.capacity) || t.capacity <= 0) throw new Error(`tier "${t.name}": bad capacity`);
+  }
+
+  const org = await d.query.organizers.findFirst({ where: eq(s.organizers.slug, "wii-malta") });
+  if (!org) throw new Error("organizer missing");
+  const clash = await d.query.events.findFirst({ where: eq(s.events.slug, slug) });
+  if (clash) throw new Error(`slug "/${slug}" already exists`);
+
+  const eventId = await d.transaction(async (tx) => {
+    if (!venueId) {
+      if (!newVenueName || !newVenueCity) throw new Error("pick a venue or create one");
+      const [v] = await tx
+        .insert(s.venues)
+        .values({ organizerId: org.id, name: newVenueName, city: newVenueCity, country: "MT" })
+        .returning();
+      venueId = v.id;
+    }
+
+    const [ev] = await tx
+      .insert(s.events)
+      .values({
+        organizerId: org.id,
+        venueId,
+        slug,
+        title,
+        status: "draft",
+        timezone: "Europe/Malta",
+        startAt: start,
+        endAt: end,
+        doorsAt: start,
+        currency: org.defaultCurrency,
+        ageRestriction: age,
+        isUnlisted: unlisted,
+        createdBy: staff.userId,
+      })
+      .returning();
+
+    await tx.insert(s.eventContent).values({
+      eventId: ev.id,
+      version: 1,
+      isLive: true,
+      blurb,
+      description: blurb,
+      kind,
+      genres,
+      media: { tint },
+      info: [],
+      faq: [],
+    });
+
+    const totalCap = tierRows.reduce((n, t) => n + t.capacity, 0);
+    await tx.insert(s.inventoryPools).values({ eventId: ev.id, tierId: null, capacity: totalCap });
+
+    for (const [i, t] of tierRows.entries()) {
+      const [tier] = await tx
+        .insert(s.ticketTiers)
+        .values({
+          eventId: ev.id,
+          organizerId: org.id,
+          name: t.name,
+          perks: t.perks,
+          isVip: t.vip,
+          status: "on_sale",
+          sort: i,
+        })
+        .returning();
+      await tx.insert(s.pricePhases).values({
+        tierId: tier.id,
+        name: "Phase 1",
+        priceCents: t.priceCents,
+        sort: 0,
+      });
+      await tx.insert(s.inventoryPools).values({
+        eventId: ev.id,
+        tierId: tier.id,
+        capacity: t.capacity,
+      });
+    }
+    return ev.id;
+  });
+
+  await audit(staff, "event.create", "event", eventId, null, { title, slug, tiers: tierRows.length });
+  revalidatePath("/events");
+  redirect(`/events/${eventId}`);
+}
 
 export async function publishEvent(eventId: string) {
   const staff = await requireStaff();
