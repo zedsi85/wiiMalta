@@ -24,7 +24,12 @@ function LoginForm() {
     });
     if (error) {
       setState("error");
-      setMessage(error.message);
+      const msg = typeof error.message === "string" && error.message.trim() ? error.message : "";
+      setMessage(
+        msg.includes("Error sending") || error.status === 500
+          ? "Our email service is misconfigured right now — tell the Wii team (SMTP settings)."
+          : msg || "Could not send the magic link. Try again in a minute."
+      );
     } else {
       setState("sent");
     }
