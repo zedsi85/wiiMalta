@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { eq, and, asc, sql } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
@@ -49,6 +50,9 @@ export default async function EventAdminPage({ params }: { params: { id: string 
           </div>
         </div>
         <div className="flex gap-2">
+          <Link href={`/events/${ev.id}/analytics`} className="btn-admin">
+            Analytics →
+          </Link>
           {ev.status === "draft" && (
             <form action={publishWithId}>
               <button className="btn-admin-primary">Publish</button>

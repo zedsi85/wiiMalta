@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { asc, sql, eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
+import { eventsRevenueOverview } from "@wii/api";
 import { requireStaff } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,8 @@ export default async function EventsPage() {
     .groupBy(s.events.id, s.venues.name, s.venues.city)
     .orderBy(asc(s.events.startAt));
 
+  const overview = await eventsRevenueOverview(rows.map((r) => r.id));
+
   const fmt = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Malta",
     day: "2-digit",
@@ -67,13 +70,16 @@ export default async function EventsPage() {
               <th>Venue</th>
               <th>Status</th>
               <th className="text-right">Sold / Cap</th>
+              <th className="text-right">Redeemed</th>
+              <th className="text-right">Revenue (net)</th>
+              <th className="text-right"></th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id} className="hover:bg-graphite/50">
                 <td>
-                  <Link href={`/events/${r.id}`} className="font-semibold hover:text-ember">
+                  <Link href={`/events/${r.id}/analytics`} className="font-semibold hover:text-ember">
                     {r.title}
                   </Link>
                   <div className="font-mono text-xs text-ash">/{r.slug}</div>
@@ -88,6 +94,15 @@ export default async function EventsPage() {
                 </td>
                 <td className="text-right font-mono">
                   {r.sold} / {r.capacity}
+                </td>
+                <td className="text-right font-mono">{overview.get(r.id)?.redeemed ?? 0}</td>
+                <td className="text-right font-mono">
+                  €{(((overview.get(r.id)?.revenueNetCents ?? 0) / 100)).toFixed(2)}
+                </td>
+                <td className="text-right">
+                  <Link href={`/events/${r.id}`} className="btn-admin text-xs">
+                    Manage
+                  </Link>
                 </td>
               </tr>
             ))}

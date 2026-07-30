@@ -5,3 +5,4 @@ export * from "./view";
 export * from "./redeem";
 export * from "./comp";
 export * from "./guard";
+export * from "./analytics";
