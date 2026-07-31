@@ -102,7 +102,7 @@ function GuardLoginForm() {
       ) : (
         <form onSubmit={verifyCode} className="grid gap-3">
           <p className="text-sm text-sand">
-            We emailed a 6-digit code to <strong>{email}</strong>. Type it here — don&apos;t tap the
+            We emailed a sign-in code to <strong>{email}</strong>. Type it here — don&apos;t tap the
             link in the email (it opens the wrong browser).
           </p>
           <label className="label" htmlFor="code">
@@ -114,16 +114,16 @@ function GuardLoginForm() {
             autoFocus
             inputMode="numeric"
             autoComplete="one-time-code"
-            pattern="[0-9]{6}"
-            maxLength={6}
+            pattern="[0-9]{6,8}"
+            maxLength={8}
             placeholder="••••••"
-            className="input-admin py-3 text-center font-mono text-2xl tracking-[0.5em]"
+            className="input-admin py-3 text-center font-mono text-2xl tracking-[0.35em]"
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
           />
           <button
             className="btn-admin-primary justify-center py-3 text-base"
-            disabled={state === "verifying" || code.length !== 6}
+            disabled={state === "verifying" || code.length < 6}
           >
             {state === "verifying" ? "Checking…" : "Sign in"}
           </button>
