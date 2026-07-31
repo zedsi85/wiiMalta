@@ -230,3 +230,40 @@ export async function sendOrderTickets(orderId: string): Promise<{ sent: boolean
     return { sent: false, error: (e as Error).message };
   }
 }
+
+/* ---------------- Login code email (PWA-friendly OTP) ---------------- */
+
+export function renderLoginCodeEmail(code: string, portalLabel: string): {
+  html: string;
+  text: string;
+  subject: string;
+} {
+  const subject = `${code} — your Wii ${portalLabel} code`;
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;background:#0b0b0e;padding:32px 16px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+    <table role="presentation" width="440" cellpadding="0" cellspacing="0" style="max-width:440px;width:100%;">
+      <tr><td style="padding-bottom:18px;">
+        <div style="font-family:'Courier New',monospace;font-size:11px;letter-spacing:4px;color:#ff4d1f;text-transform:uppercase;">Wii Event Malta</div>
+        <div style="font-family:Arial Black,Arial,sans-serif;font-size:24px;font-weight:900;color:#fbf8f1;text-transform:uppercase;margin-top:6px;">Your sign-in code</div>
+      </td></tr>
+      <tr><td style="background:#fbf8f1;border-radius:14px;padding:26px;text-align:center;">
+        <div style="font-family:'Courier New',monospace;font-size:40px;font-weight:bold;letter-spacing:10px;color:#0b0b0e;">${code}</div>
+        <div style="font-family:Arial,sans-serif;font-size:13px;color:#3a3a45;margin-top:12px;">
+          Type this into the ${portalLabel} app. Expires in 1 hour · single use.<br>
+          Didn't request it? Ignore this email.
+        </div>
+      </td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`;
+  const text = `Wii Event Malta — your ${portalLabel} sign-in code: ${code}\nExpires in 1 hour, single use. Didn't request it? Ignore this email.`;
+  return { html, text, subject };
+}
+
+/** Send a login OTP code via our own mailer (bypasses the PWA↔Safari cookie split). */
+export async function sendLoginCode(to: string, code: string, portalLabel: string) {
+  const { html, text, subject } = renderLoginCodeEmail(code, portalLabel);
+  return deliver(to, subject, html, text);
+}

@@ -1,39 +1,65 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
+/**
+ * Guard login is CODE-FIRST: installed PWAs on iOS keep cookies separate
+ * from Safari, so an emailed magic LINK signs in the wrong browser. A
+ * 6-digit code typed here verifies inside the PWA itself (verifyOtp), so
+ * the session lands exactly where the guard is standing.
+ */
 function GuardLoginForm() {
   const params = useSearchParams();
+  const router = useRouter();
   const denied = params.get("error") === "denied";
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [code, setCode] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "code" | "verifying" | "error">("idle");
   const [message, setMessage] = useState("");
 
-  async function submit(e: React.FormEvent) {
+  async function requestCode(e: React.FormEvent) {
     e.preventDefault();
     setState("sending");
+    setMessage("");
+    try {
+      await fetch("/api/auth/request-code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, portal: "guard" }),
+      });
+      setState("code");
+    } catch {
+      setState("error");
+      setMessage("Couldn't reach the server — check your connection.");
+    }
+  }
+
+  async function verifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setState("verifying");
+    setMessage("");
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    document.cookie = "wii_login_next=/guard/events; path=/; max-age=1800; SameSite=Lax";
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim().toLowerCase(),
+      token: code.trim(),
+      type: "email",
     });
     if (error) {
-      setState("error");
-      const msg = typeof error.message === "string" && error.message.trim() ? error.message : "";
+      setState("code");
       setMessage(
-        msg.includes("Error sending") || error.status === 500
-          ? "Our email service is misconfigured right now — tell the Wii team (SMTP settings)."
-          : msg || "Could not send the magic link. Try again in a minute."
+        error.message?.toLowerCase().includes("expired") || error.message?.toLowerCase().includes("invalid")
+          ? "That code didn't match — check the digits or request a new one."
+          : error.message || "Verification failed. Try again."
       );
-    } else {
-      setState("sent");
+      return;
     }
+    router.push("/guard/events");
+    router.refresh();
   }
 
   return (
@@ -50,12 +76,8 @@ function GuardLoginForm() {
         </p>
       )}
 
-      {state === "sent" ? (
-        <p className="text-sand">
-          Magic link sent to <strong>{email}</strong>. Open it on <em>this phone</em> to sign in.
-        </p>
-      ) : (
-        <form onSubmit={submit} className="grid gap-3">
+      {state !== "code" && state !== "verifying" ? (
+        <form onSubmit={requestCode} className="grid gap-3">
           <label className="label" htmlFor="email">
             Your email
           </label>
@@ -72,9 +94,50 @@ function GuardLoginForm() {
             onChange={(e) => setEmail(e.target.value)}
           />
           <button className="btn-admin-primary justify-center py-3 text-base" disabled={state === "sending"}>
-            {state === "sending" ? "Sending…" : "Send magic link"}
+            {state === "sending" ? "Sending…" : "Email me a sign-in code"}
           </button>
           {state === "error" && <p className="text-sm text-ember-300">{message}</p>}
+        </form>
+      ) : (
+        <form onSubmit={verifyCode} className="grid gap-3">
+          <p className="text-sm text-sand">
+            We emailed a 6-digit code to <strong>{email}</strong>. Type it here — don&apos;t tap the
+            link in the email (it opens the wrong browser).
+          </p>
+          <label className="label" htmlFor="code">
+            Sign-in code
+          </label>
+          <input
+            id="code"
+            required
+            autoFocus
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            placeholder="••••••"
+            className="input-admin py-3 text-center font-mono text-2xl tracking-[0.5em]"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+          />
+          <button
+            className="btn-admin-primary justify-center py-3 text-base"
+            disabled={state === "verifying" || code.length !== 6}
+          >
+            {state === "verifying" ? "Checking…" : "Sign in"}
+          </button>
+          {message && <p className="text-sm text-ember-300">{message}</p>}
+          <button
+            type="button"
+            className="text-left font-mono text-xs text-fog underline"
+            onClick={() => {
+              setState("idle");
+              setCode("");
+              setMessage("");
+            }}
+          >
+            ← different email / resend
+          </button>
         </form>
       )}
     </main>
