@@ -24,11 +24,12 @@ function GuardLoginForm() {
     setState("sending");
     setMessage("");
     try {
-      await fetch("/api/auth/request-code", {
+      const res = await fetch("/api/auth/request-code", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email, portal: "guard" }),
       });
+      if (!res.ok) throw new Error(String(res.status));
       setState("code");
     } catch {
       setState("error");
