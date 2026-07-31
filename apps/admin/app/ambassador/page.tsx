@@ -77,7 +77,7 @@ export default async function AmbassadorDashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card">
           <h2 className="label mb-4">Monthly earnings — live commission, EUR</h2>
-          <Bars data={d.monthlyEarnings} format={eur} emptyText="No earnings yet — share your link" />
+          <Bars data={d.monthlyEarnings} kind="eur" emptyText="No earnings yet — share your link" />
         </section>
         <section className="card">
           <h2 className="label mb-4">Standing</h2>

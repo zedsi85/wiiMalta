@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatValue, type ValueKind } from "./Bars";
 
 /**
  * Single-series horizontal bars — magnitude across named categories
@@ -16,11 +17,11 @@ const EMBER = "#ff4d1f";
 
 export function HBars({
   data,
-  format = (v) => String(v),
+  kind = "int",
   emptyText = "No data yet",
 }: {
   data: HBarsPoint[];
-  format?: (v: number) => string;
+  kind?: ValueKind;
   emptyText?: string;
 }) {
   const [hover, setHover] = useState<number | null>(null);
@@ -51,7 +52,7 @@ export function HBars({
               }}
             />
           </div>
-          <span className="font-mono text-xs tabular-nums text-bone">{format(d.value)}</span>
+          <span className="font-mono text-xs tabular-nums text-bone">{formatValue(d.value, kind)}</span>
         </div>
       ))}
     </div>

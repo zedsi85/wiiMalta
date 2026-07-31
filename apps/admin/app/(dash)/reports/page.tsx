@@ -27,7 +27,7 @@ export default async function ReportsPage() {
           <h2 className="label mb-4">Top ambassadors — attributed net revenue</h2>
           <HBars
             data={ambassadors.filter((a) => a.revenueNet > 0).slice(0, 8).map((a) => ({ label: a.name, value: a.revenueNet }))}
-            format={eur}
+            kind="eur"
             emptyText="No attributed revenue yet"
           />
         </section>

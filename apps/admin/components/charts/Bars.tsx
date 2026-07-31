@@ -15,14 +15,23 @@ export interface BarsPoint {
 
 const EMBER = "#ff4d1f";
 
+/** Declarative formatting — functions can't cross the RSC boundary. */
+export type ValueKind = "eur" | "int";
+export function formatValue(v: number, kind: ValueKind, suffix = ""): string {
+  const base = kind === "eur" ? `€${(v / 100).toFixed(2)}` : String(v);
+  return base + suffix;
+}
+
 export function Bars({
   data,
-  format = (v) => String(v),
+  kind = "int",
+  suffix = "",
   height = 160,
   emptyText = "No data yet",
 }: {
   data: BarsPoint[];
-  format?: (v: number) => string;
+  kind?: ValueKind;
+  suffix?: string;
   height?: number;
   emptyText?: string;
 }) {
@@ -104,7 +113,7 @@ export function Bars({
         <Tooltip
           data={data}
           index={hover ?? maxIdx}
-          format={format}
+          format={(v) => formatValue(v, kind, suffix)}
           pinned={hover === null}
           plotH={plotH}
           height={height}

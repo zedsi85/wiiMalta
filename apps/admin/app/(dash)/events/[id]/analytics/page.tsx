@@ -82,15 +82,15 @@ export default async function EventAnalyticsPage({ params }: { params: { id: str
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card">
           <h2 className="label mb-4">Hourly entries — door scans</h2>
-          <Bars data={a.hourlyEntries} format={(v) => `${v} in`} emptyText="No check-ins yet" />
+          <Bars data={a.hourlyEntries} kind="int" suffix=" in" emptyText="No check-ins yet" />
         </section>
         <section className="card">
           <h2 className="label mb-4">Revenue by day — net, EUR</h2>
-          <Bars data={a.revenueByDay} format={eur} emptyText="No paid orders yet" />
+          <Bars data={a.revenueByDay} kind="eur" emptyText="No paid orders yet" />
         </section>
         <section className="card">
           <h2 className="label mb-4">Revenue by tier — gross, EUR</h2>
-          <HBars data={a.revenueByTier} format={eur} emptyText="No paid orders yet" />
+          <HBars data={a.revenueByTier} kind="eur" emptyText="No paid orders yet" />
         </section>
         <section className="card">
           <h2 className="label mb-4">Referrals</h2>
