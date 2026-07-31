@@ -8,10 +8,14 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const nextParam = searchParams.get("next");
-  const next = nextParam && /^\/[a-zA-Z0-9/_-]*$/.test(nextParam) ? nextParam : "/";
+  const valid = (v: string | null | undefined) => (v && /^\/[a-zA-Z0-9/_-]*$/.test(v) ? v : null);
+  const cookieNext = request.cookies.get("wii_login_next")?.value;
+  // Query param wins; cookie covers allowlists that strip query strings; the
+  // /portal role-router covers cross-device clicks (no cookie present).
+  const next = valid(searchParams.get("next")) ?? valid(cookieNext) ?? "/portal";
 
   const redirectTo = NextResponse.redirect(`${origin}${next}`);
+  redirectTo.cookies.set("wii_login_next", "", { path: "/", maxAge: 0 });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

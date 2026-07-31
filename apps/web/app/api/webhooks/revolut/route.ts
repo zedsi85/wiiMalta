@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
-import { finalizePaidOrder } from "@wii/api";
+import { finalizePaidOrder, sendOrderTickets } from "@wii/api";
 
 export const runtime = "nodejs";
 
@@ -67,7 +67,11 @@ export async function POST(req: NextRequest) {
         ),
       });
       if (payment) {
-        await finalizePaidOrder({ orderId: payment.orderId, providerPaymentId: providerOrderId });
+        const result = await finalizePaidOrder({
+          orderId: payment.orderId,
+          providerPaymentId: providerOrderId,
+        });
+        if (result.outcome === "paid") await sendOrderTickets(payment.orderId);
       }
     }
     await d

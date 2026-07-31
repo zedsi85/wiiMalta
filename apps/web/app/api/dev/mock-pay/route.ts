@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyOrderKey } from "@wii/core";
-import { finalizePaidOrder } from "@wii/api";
+import { finalizePaidOrder, sendOrderTickets } from "@wii/api";
 import { paymentProvider } from "@wii/api";
 
 export const runtime = "nodejs";
@@ -29,5 +29,8 @@ export async function POST(req: NextRequest) {
     orderId: body.orderId,
     providerPaymentId: `mockpay_${body.orderId}`,
   });
+  if (result.outcome === "paid" || result.outcome === "already_paid") {
+    await sendOrderTickets(body.orderId); // internally fail-safe
+  }
   return NextResponse.json(result);
 }

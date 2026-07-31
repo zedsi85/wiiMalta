@@ -8,3 +8,4 @@ export * from "./guard";
 export * from "./analytics";
 export * from "./ambassador";
 export * from "./payout-admin";
+export * from "./email";

@@ -333,6 +333,7 @@ import {
   unredeemTicket,
   revokeTicket,
   issueCompTickets,
+  sendOrderTickets,
   type RedeemResult,
 } from "@wii/api";
 
@@ -377,6 +378,7 @@ export async function compTicketsAction(formData: FormData) {
   const qty = Number(formData.get("qty") ?? 1);
   const result = await issueCompTickets({ eventId, tierId, email, qty, actorUserId: staff.userId });
   await audit(staff, "ticket.comp", "order", result.orderId, null, { email, qty, serials: result.serials });
+  await sendOrderTickets(result.orderId);
   revalidatePath("/tickets");
 }
 
@@ -504,4 +506,12 @@ export async function setAmbassadorTermsAction(profileId: string, formData: Form
     .where(eq(s.ambassadorProfiles.id, profileId));
   await audit(staff, "ambassador.terms", "ambassador_profile", profileId, null, { bps, bonus });
   revalidatePath("/ambassadors");
+}
+
+
+export async function resendTicketsAction(orderId: string) {
+  const staff = await requireStaff();
+  const result = await sendOrderTickets(orderId);
+  await audit(staff, "order.tickets_resend", "order", orderId, null, result);
+  revalidatePath(`/orders/${orderId}`);
 }

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { asc, eq, inArray } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
 import { requireStaff } from "@/lib/auth";
-import { refundOrderAction, revokeTicketAction, unredeemTicketAction } from "../../actions";
+import { refundOrderAction, revokeTicketAction, unredeemTicketAction, resendTicketsAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +43,11 @@ export default async function OrderAdminPage({ params }: { params: { id: string 
         <div className="mt-1 text-sm text-fog">
           {event?.title} · {order.email} · <span className="pill">{order.status}</span>
         </div>
+        {(order.status === "paid" || order.status === "partially_refunded") && (
+          <form action={resendTicketsAction.bind(null, order.id)} className="mt-2">
+            <button className="btn-admin text-xs">Resend ticket email</button>
+          </form>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
