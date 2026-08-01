@@ -1,3 +1,4 @@
+import Link from "next/link";
 import QRCode from "qrcode";
 import { asc, eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
@@ -43,6 +44,24 @@ export default async function MarketingAssetsPage() {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={qr} alt="Referral QR" className="h-40 w-40 rounded-md" />
             )}
+          </section>
+
+          <section className="card">
+            <div className="label mb-3">Printable flyers — A5, with your QR</div>
+            <p className="mb-3 text-xs text-fog">
+              Poster-style flyer built from the event artwork. Open → Print / save as PDF. Hand them
+              out, pin them up — every scan is your referral.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/ambassador/flyer" className="btn-admin-primary text-xs">
+                ★ General flyer
+              </Link>
+              {events.map((e) => (
+                <Link key={e.slug} href={`/ambassador/flyer?event=${e.slug}`} className="btn-admin text-xs">
+                  {e.title}
+                </Link>
+              ))}
+            </div>
           </section>
 
           <section className="card">
