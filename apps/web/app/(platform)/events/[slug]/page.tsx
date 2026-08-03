@@ -38,7 +38,6 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
       name: event.venue,
       address: { "@type": "PostalAddress", addressLocality: event.city, addressCountry: "MT" },
     },
-    image: [`${site}/events/${event.slug}/opengraph-image`],
     description: event.blurb,
     organizer: { "@type": "Organization", name: "Wii Event Malta", url: site },
     offers: event.tiers.map((t) => ({
