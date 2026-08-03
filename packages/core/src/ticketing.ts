@@ -97,3 +97,63 @@ export function verifyOrderKey(orderId: string, key: string, secret: string): bo
   const b = Buffer.from(expected);
   return a.length === b.length && timingSafeEqual(a, b);
 }
+
+/* ---------------- Per-ticket access keys (transfers) ---------------- */
+
+/** Recipient-facing single-ticket link key — scoped to ONE ticket, so a
+ *  transferred ticket never exposes the original buyer's order. */
+export function signTicketKey(ticketId: string, secret: string): string {
+  return hmac(secret, `ticket.${ticketId}`);
+}
+
+export function verifyTicketKey(ticketId: string, key: string, secret: string): boolean {
+  const expected = signTicketKey(ticketId, secret);
+  const a = Buffer.from(key);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/* ---------------- Buyer account session (web) ---------------- */
+
+/** Signed email-session value: v1.<b64 payload>.<hmac>; payload {email, exp}. */
+export function signAccountSession(email: string, secret: string, ttlMs = 30 * 24 * 3600_000): string {
+  const body = b64url(Buffer.from(JSON.stringify({ email: email.toLowerCase(), exp: Date.now() + ttlMs })));
+  return `v1.${body}.${hmac(secret, `acct.${body}`)}`;
+}
+
+export function verifyAccountSession(value: string, secret: string): string | null {
+  const parts = value.split(".");
+  if (parts.length !== 3 || parts[0] !== "v1") return null;
+  const expected = hmac(secret, `acct.${parts[1]}`);
+  const a = Buffer.from(parts[2]);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString()) as { email: string; exp: number };
+    if (typeof payload.exp !== "number" || payload.exp < Date.now()) return null;
+    return payload.email;
+  } catch {
+    return null;
+  }
+}
+
+/** Login challenge: HMAC binding email+code+expiry — stateless code verification. */
+export function signLoginChallenge(email: string, code: string, secret: string, ttlMs = 15 * 60_000): string {
+  const exp = Date.now() + ttlMs;
+  return `${exp}.${hmac(secret, `chal.${email.toLowerCase()}.${code}.${exp}`)}`;
+}
+
+export function verifyLoginChallenge(
+  email: string,
+  code: string,
+  challenge: string,
+  secret: string
+): boolean {
+  const [expStr, sig] = challenge.split(".");
+  const exp = Number(expStr);
+  if (!Number.isFinite(exp) || exp < Date.now() || !sig) return false;
+  const expected = hmac(secret, `chal.${email.toLowerCase()}.${code}.${exp}`);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}

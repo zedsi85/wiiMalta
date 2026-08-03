@@ -50,6 +50,9 @@ export default function CommunityPage() {
               <Button href="#waitlist" variant="vip">
                 Join the Waitlist
               </Button>
+              <Button href="https://wii-malta-admin.vercel.app/ambassador/apply" variant="secondary">
+                Become an ambassador
+              </Button>
               <Button href="/events" variant="secondary">
                 Get Early Access
               </Button>

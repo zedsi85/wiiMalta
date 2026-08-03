@@ -71,6 +71,10 @@ function Form() {
           {state === "error" && <p className="text-sm text-ember-300">{message}</p>}
         </form>
       )}
+      <p className="mt-6 font-mono text-xs text-fog">
+        Not an ambassador yet?{" "}
+        <a href="/ambassador/apply" className="text-ember underline">Apply here</a>.
+      </p>
     </main>
   );
 }

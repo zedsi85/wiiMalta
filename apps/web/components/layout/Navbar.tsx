@@ -8,6 +8,7 @@ import { MagneticButton } from "@/components/ui/MagneticButton";
 
 const LINKS: { label: string; href: string }[] = [
   { label: "Events", href: "/events" },
+  { label: "My Tickets", href: "/account" },
   { label: "Community", href: "/community" },
   { label: "Gallery", href: "/#gallery" },
   { label: "About", href: "/about" },

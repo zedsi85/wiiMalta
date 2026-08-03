@@ -34,7 +34,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/auth") ||
     pathname.startsWith("/guard/login") ||
     pathname.startsWith("/ambassador/login") ||
-    pathname.startsWith("/api/auth/"); // login-code endpoint: pre-auth by nature
+    pathname.startsWith("/ambassador/apply") ||
+    pathname.startsWith("/api/ambassador-apply") ||
+    pathname.startsWith("/api/auth/"); // pre-auth endpoints
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     // API adapters answer 401 themselves; pages bounce to the right login

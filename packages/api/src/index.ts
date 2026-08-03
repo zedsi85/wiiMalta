@@ -9,3 +9,4 @@ export * from "./analytics";
 export * from "./ambassador";
 export * from "./payout-admin";
 export * from "./email";
+export * from "./transfers";
