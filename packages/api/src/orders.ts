@@ -241,9 +241,10 @@ export async function beginPayment(orderId: string, email: string) {
         amountCents: order.totalCents,
       })
       .returning();
-    // Stash the client token on the payment row via providerPaymentId? No —
-    // token is derivable for mock; for Revolut we return it directly.
-    (payment as { clientToken?: string }).clientToken = pOrder.clientToken;
+    // Round-trip widget token + hosted checkout URL to the caller (mobile
+    // uses the hosted page; web uses the widget token).
+    (payment as { clientToken?: string; checkoutUrl?: string }).clientToken = pOrder.clientToken;
+    (payment as { clientToken?: string; checkoutUrl?: string }).checkoutUrl = pOrder.checkoutUrl;
   }
 
   const newExpiry = new Date(Date.now() + PAYMENT_TTL_MS);
@@ -271,6 +272,7 @@ export async function beginPayment(orderId: string, email: string) {
     clientToken:
       (payment as { clientToken?: string }).clientToken ??
       (provider.name === "mock" ? `mocktok_${orderId}` : ""),
+    checkoutUrl: (payment as { checkoutUrl?: string }).checkoutUrl,
     expiresAt: newExpiry,
   };
 }

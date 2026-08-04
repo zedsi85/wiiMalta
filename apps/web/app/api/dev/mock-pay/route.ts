@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyOrderKey } from "@wii/core";
-import { finalizePaidOrder, sendOrderTickets } from "@wii/api";
+import { finalizePaidOrder, sendOrderTickets, pushToUserEmail, getOrderView } from "@wii/api";
 import { paymentProvider } from "@wii/api";
 
 export const runtime = "nodejs";
@@ -31,6 +31,14 @@ export async function POST(req: NextRequest) {
   });
   if (result.outcome === "paid" || result.outcome === "already_paid") {
     await sendOrderTickets(body.orderId); // internally fail-safe
+    const view = await getOrderView(body.orderId);
+    if (view) {
+      await pushToUserEmail(view.email, {
+        title: "Your Wii tickets are ready 🎟",
+        body: `${view.event.title} — tap to open your QR.`,
+        data: { url: `/tickets` },
+      });
+    }
   }
   return NextResponse.json(result);
 }

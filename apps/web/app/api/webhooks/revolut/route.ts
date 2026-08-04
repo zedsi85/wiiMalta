@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
-import { finalizePaidOrder, sendOrderTickets } from "@wii/api";
+import { finalizePaidOrder, sendOrderTickets, pushToUserEmail, getOrderView } from "@wii/api";
 
 export const runtime = "nodejs";
 
@@ -71,7 +71,17 @@ export async function POST(req: NextRequest) {
           orderId: payment.orderId,
           providerPaymentId: providerOrderId,
         });
-        if (result.outcome === "paid") await sendOrderTickets(payment.orderId);
+        if (result.outcome === "paid") {
+          await sendOrderTickets(payment.orderId);
+          const view = await getOrderView(payment.orderId);
+          if (view) {
+            await pushToUserEmail(view.email, {
+              title: "Your Wii tickets are ready 🎟",
+              body: `${view.event.title} — tap to open your QR.`,
+              data: { url: `/tickets` },
+            });
+          }
+        }
       }
     }
     await d

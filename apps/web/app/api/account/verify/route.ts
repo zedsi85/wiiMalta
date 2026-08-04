@@ -17,8 +17,11 @@ export async function POST(req: NextRequest) {
   if (!email || !code || !verifyLoginChallenge(email, code, challenge, process.env.ORDER_LINK_SECRET!)) {
     return NextResponse.json({ ok: false, error: "bad_code" }, { status: 401 });
   }
-  const res = NextResponse.json({ ok: true });
-  res.cookies.set("wii_account", signAccountSession(email, process.env.ORDER_LINK_SECRET!), {
+  const session = signAccountSession(email, process.env.ORDER_LINK_SECRET!);
+  // token in body: the mobile app stores it in SecureStore and sends it as
+  // Authorization: Bearer — same signed value the web cookie carries.
+  const res = NextResponse.json({ ok: true, token: session, email });
+  res.cookies.set("wii_account", session, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

@@ -797,6 +797,17 @@ export const referralVisits = pgTable(
   (t) => [index("referral_visits_amb_idx").on(t.ambassadorId, t.createdAt)]
 );
 
+/** Saved/favorited events (mobile + web wishlists). */
+export const savedEvents = pgTable(
+  "saved_events",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    eventId: uuid("event_id").notNull().references(() => events.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.eventId] })]
+);
+
 /* ================================================================== */
 /* Waitlist                                                           */
 /* ================================================================== */
