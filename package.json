@@ -2,13 +2,14 @@
   "name": "wii-malta",
   "version": "0.1.0",
   "private": true,
-  "description": "Wii Malta — Event OS monorepo. Marketing site + platform (apps) and shared domain/design packages.",
+  "description": "Wii Malta \u2014 Event OS monorepo. Marketing site + platform (apps) and shared domain/design packages.",
   "packageManager": "npm@10.7.0",
   "engines": {
     "node": ">=18.18.0"
   },
   "workspaces": [
-    "apps/*",
+    "apps/web",
+    "apps/admin",
     "packages/*"
   ],
   "scripts": {
