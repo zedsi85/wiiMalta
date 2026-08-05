@@ -1,14 +1,11 @@
+// babel-preset-expo MUST stay on the SDK-matched major (54.x for expo ~54).
+// A newer preset (57.x got in once) targets "Hermes V1" and keeps native
+// `class`/#private syntax, which this SDK's Hermes rejects — the app then
+// dies in Expo Go at startup and `expo export` fails in hermesc.
+// Verify after dependency changes: `npx expo export --platform ios` must pass.
 module.exports = function (api) {
   api.cache(true);
   return {
     presets: ["babel-preset-expo"],
-    // Explicit for Hermes: RN 0.81 core ships #private class syntax; in this
-    // monorepo the preset's automatic Hermes profile misses it (Babel version
-    // skew across the two dependency trees), so we pin the transforms.
-    plugins: [
-      "@babel/plugin-transform-class-properties",
-      "@babel/plugin-transform-private-methods",
-      "@babel/plugin-transform-private-property-in-object",
-    ],
   };
 };
