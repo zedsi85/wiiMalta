@@ -12,3 +12,4 @@ export * from "./email";
 export * from "./transfers";
 export * from "./saved";
 export * from "./push";
+export * from "./account";

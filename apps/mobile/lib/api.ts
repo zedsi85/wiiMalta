@@ -157,6 +157,7 @@ export const Api = {
     }),
   validateRef: (code: string) =>
     api<{ ok: boolean }>("/api/ref", { method: "POST", body: JSON.stringify({ code }), auth: false }),
+  deleteAccount: () => api<{ ok: boolean }>("/api/account/delete", { method: "POST" }),
 };
 
 export interface AmbassadorDashboard {

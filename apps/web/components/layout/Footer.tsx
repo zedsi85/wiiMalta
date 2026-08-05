@@ -26,7 +26,8 @@ const cols: { h: string; items: { label: string; href: string }[] }[] = [
       { label: "Community", href: "/community" },
       { label: "Partners", href: "/partners" },
       { label: "Contact", href: "/partners#contact" },
-      { label: "FAQ", href: "#" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
     ],
   },
   {

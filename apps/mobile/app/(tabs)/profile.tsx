@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, ScrollView, Switch, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, Switch, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { c, font, r } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { useAmbassador, useSaved, useTickets, useEvents } from "@/lib/queries";
 import { registerForPush } from "@/lib/push";
+import { Api } from "@/lib/api";
 import { BrandButton, EmptyState, EventCard, Eyebrow, H1, Pill, Screen } from "@/components/ui";
 
 function Row({ label, value, onPress }: { label: string; value?: string; onPress?: () => void }) {
@@ -131,7 +132,8 @@ export default function ProfileScreen() {
             />
           </View>
           <Row label="My orders (web wallet)" onPress={() => router.push("/(tabs)/tickets")} />
-          <Row label="Privacy" value="wii-malta.vercel.app" />
+          <Row label="Privacy policy" onPress={() => void Linking.openURL("https://wii-malta-web.vercel.app/privacy")} />
+          <Row label="Terms of service" onPress={() => void Linking.openURL("https://wii-malta-web.vercel.app/terms")} />
           <View style={{ marginTop: 24 }}>
             <BrandButton
               title="Sign out"
@@ -142,6 +144,34 @@ export default function ProfileScreen() {
               }}
             />
           </View>
+          <Pressable
+            accessibilityRole="button"
+            style={{ marginTop: 20, alignItems: "center" }}
+            onPress={() =>
+              Alert.alert(
+                "Delete account?",
+                "This erases your saved events, devices and profile details. Purchase records are kept as required by law — tickets you already bought stay valid via their email links.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                      try {
+                        await Api.deleteAccount();
+                        await logout();
+                        router.replace("/(tabs)");
+                      } catch {
+                        Alert.alert("Couldn't delete", "We couldn't reach the server. Check your connection and try again.");
+                      }
+                    },
+                  },
+                ]
+              )
+            }
+          >
+            <Text style={{ fontFamily: font.mono, fontSize: 12, color: c.ember300 }}>Delete account</Text>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </Screen>
