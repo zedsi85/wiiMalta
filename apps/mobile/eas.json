@@ -12,14 +12,14 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://wii-malta-web.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://wiievent.com"
       }
     },
     "production": {
       "autoIncrement": true,
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://wii-malta-web.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://wiievent.com"
       }
     }
   },

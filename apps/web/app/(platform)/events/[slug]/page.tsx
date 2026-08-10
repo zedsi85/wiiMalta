@@ -25,7 +25,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
   if (!event) notFound();
   const similar = await fetchSimilar(params.slug);
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wii-malta-web.vercel.app";
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wiievent.com";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",

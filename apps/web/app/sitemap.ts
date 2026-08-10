@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { fetchCatalogEvents } from "@/lib/catalog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wii-malta-web.vercel.app";
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wiievent.com";
   const events = await fetchCatalogEvents().catch(() => []);
   return [
     { url: site, changeFrequency: "weekly", priority: 1 },

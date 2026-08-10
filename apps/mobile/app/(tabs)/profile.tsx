@@ -132,8 +132,8 @@ export default function ProfileScreen() {
             />
           </View>
           <Row label="My orders (web wallet)" onPress={() => router.push("/(tabs)/tickets")} />
-          <Row label="Privacy policy" onPress={() => void Linking.openURL("https://wii-malta-web.vercel.app/privacy")} />
-          <Row label="Terms of service" onPress={() => void Linking.openURL("https://wii-malta-web.vercel.app/terms")} />
+          <Row label="Privacy policy" onPress={() => void Linking.openURL("https://wiievent.com/privacy")} />
+          <Row label="Terms of service" onPress={() => void Linking.openURL("https://wiievent.com/terms")} />
           <View style={{ marginTop: 24 }}>
             <BrandButton
               title="Sign out"

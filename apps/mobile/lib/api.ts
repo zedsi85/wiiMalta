@@ -5,6 +5,8 @@ import * as SecureStore from "expo-secure-store";
  * file is transport only. Session = the same signed account value the web
  * cookie carries, stored in SecureStore, sent as a Bearer header.
  */
+// Dev fallback stays on the permanent vercel.app alias (same backend);
+// store builds get https://wiievent.com via eas.json env.
 export const API_URL =
   process.env.EXPO_PUBLIC_API_URL ?? "https://wii-malta-web.vercel.app";
 

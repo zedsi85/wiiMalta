@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       heading: "New application",
       body: `<b>${name}</b> (${email})${body.instagram ? ` · IG: ${body.instagram}` : ""}<br><br>${(body.motivation ?? "").slice(0, 500) || "No motivation text."}<br><br>Approve or reject in Admin → Ambassadors.`,
       ctaLabel: "Open ambassadors",
-      ctaUrl: "https://wii-malta-admin.vercel.app/ambassadors",
+      ctaUrl: "https://admin.wiievent.com/ambassadors",
     }).catch(() => {});
   }
   return NextResponse.json({ ok: true });

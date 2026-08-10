@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.wiimalta.app",
-      "associatedDomains": ["applinks:wii-malta-web.vercel.app"],
+      "associatedDomains": ["applinks:wiievent.com", "applinks:wii-malta-web.vercel.app"],
       "infoPlist": { "ITSAppUsesNonExemptEncryption": false }
     },
     "android": {
@@ -26,7 +26,10 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "data": [{ "scheme": "https", "host": "wii-malta-web.vercel.app", "pathPrefix": "/events" }],
+          "data": [
+            { "scheme": "https", "host": "wiievent.com", "pathPrefix": "/events" },
+            { "scheme": "https", "host": "wii-malta-web.vercel.app", "pathPrefix": "/events" }
+          ],
           "category": ["BROWSABLE", "DEFAULT"]
         }
       ]

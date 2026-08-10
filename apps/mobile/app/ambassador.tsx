@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { BrandButton, Eyebrow, H1, Pill, Screen, Skeleton } from "@/components/ui";
 
 const eur = (cents: number) => `€${(cents / 100).toFixed(2)}`;
-const ADMIN_URL = "https://wii-malta-admin.vercel.app";
+const ADMIN_URL = "https://admin.wiievent.com";
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
