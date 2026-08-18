@@ -85,9 +85,19 @@ export function EventCard({ event, index }: { event: WiiEvent; index?: number })
       onPointerLeave={onLeave}
     >
       <div className="ev-poster wii-grain">
-        {/* @asset replace this gradient + illustration with real poster artwork */}
-        <div className="pp" style={{ background: event.tint }} />
-        <CardIllustration variant={eventVariant(event)} intensity="high" animated />
+        {event.posterUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.posterUrl}
+            alt={`${event.title} poster`}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+          />
+        ) : (
+          <>
+            <div className="pp" style={{ background: event.tint }} />
+            <CardIllustration variant={eventVariant(event)} intensity="high" animated />
+          </>
+        )}
         {index != null ? <span className="ev-idx">{pad(index)}</span> : null}
         <span className="ev-status">
           <span className={`badge ${event.status}`}>
@@ -95,7 +105,8 @@ export function EventCard({ event, index }: { event: WiiEvent; index?: number })
             {statusLabel[event.status]}
           </span>
         </span>
-        <span className="ev-name">{event.title}</span>
+        {/* poster artwork already carries the event name */}
+        {!event.posterUrl && <span className="ev-name">{event.title}</span>}
       </div>
 
       {/* moving club-light gloss */}

@@ -69,6 +69,8 @@ export function SectionHead({
 /** A clearly-marked image/video placeholder zone — replace with real footage. */
 export function MediaSlot({
   tint,
+  src,
+  alt = "",
   label = "Event footage",
   aspect,
   grain = true,
@@ -76,6 +78,9 @@ export function MediaSlot({
   style,
 }: {
   tint?: string;
+  /** Real artwork (poster/photo). Renders as a cover image; label is hidden. */
+  src?: string;
+  alt?: string;
   label?: string;
   aspect?: string;
   grain?: boolean;
@@ -87,8 +92,16 @@ export function MediaSlot({
       className={grain ? "wii-grain" : ""}
       style={{ position: "relative", overflow: "hidden", aspectRatio: aspect, background: tint || "var(--night-wash)", ...style }}
     >
-      <div style={{ position: "absolute", inset: 0, background: "var(--glow-ember)", opacity: 0.35, pointerEvents: "none" }} />
-      {label ? (
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%" }}
+        />
+      ) : null}
+      <div style={{ position: "absolute", inset: 0, background: "var(--glow-ember)", opacity: src ? 0.18 : 0.35, pointerEvents: "none" }} />
+      {label && !src ? (
         <span
           style={{
             position: "absolute",

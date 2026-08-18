@@ -45,8 +45,10 @@ export interface WiiEvent {
   priceFrom: string;
   status: EventStatus;
   type: string;
-  /** Placeholder poster tint — replace with real artwork. */
+  /** Poster tint — ground gradient; also the fallback when no artwork. */
   tint: string;
+  /** Poster artwork URL (public path or absolute); tint used when absent. */
+  posterUrl?: string;
   blurb: string;
   artists: LineupArtist[];
   tiers: TicketTier[];

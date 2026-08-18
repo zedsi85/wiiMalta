@@ -167,6 +167,7 @@ export async function fetchCatalogEvents(): Promise<WiiEvent[]> {
       status,
       type: content?.kind ?? "Night",
       tint: (content?.media as { tint?: string } | null)?.tint ?? "linear-gradient(150deg,#241318,#0a0a0c 72%)",
+      posterUrl: (content?.media as { posterKey?: string } | null)?.posterKey || undefined,
       blurb: content?.blurb ?? "",
       artists,
       tiers: viewTiers,

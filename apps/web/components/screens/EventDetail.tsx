@@ -70,6 +70,8 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
       <div style={{ position: "relative", paddingTop: 66 }}>
         <MediaSlot
           tint={event.tint}
+          src={event.posterUrl}
+          alt={`${event.title} poster`}
           label={`${event.title} — replace with event film`}
           style={{ minHeight: "min(78vh, 720px)" }}
         >
