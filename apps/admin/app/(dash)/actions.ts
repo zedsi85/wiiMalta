@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { eq, and, sql } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
 import { assertTransition, centsFromLegacyString } from "@wii/core";
+import { sendAmbassadorApprovedEmail } from "@wii/api";
 import { requireStaff, type StaffContext } from "@/lib/auth";
 import { localToUtc } from "@/lib/time";
 
@@ -251,9 +252,34 @@ export async function inviteAmbassador(formData: FormData) {
     .onConflictDoNothing()
     .returning();
   if (profile) {
-    await audit(staff, "ambassador.invite", "ambassador_profile", profile.id, null, { email, bps });
+    const emailed = await notifyAmbassadorApproved(profile.id).catch(() => false);
+    await audit(staff, "ambassador.invite", "ambassador_profile", profile.id, null, { email, bps, emailed });
   }
   revalidatePath("/ambassadors");
+}
+
+/** Welcome email on approval — best-effort, never blocks the admin action. */
+async function notifyAmbassadorApproved(profileId: string): Promise<boolean> {
+  const d = db();
+  const profile = await d.query.ambassadorProfiles.findFirst({
+    where: eq(s.ambassadorProfiles.id, profileId),
+  });
+  if (!profile) return false;
+  const [user, org, code] = await Promise.all([
+    d.query.users.findFirst({ where: eq(s.users.id, profile.userId) }),
+    d.query.organizers.findFirst({ where: eq(s.organizers.id, profile.organizerId) }),
+    d.query.referralCodes.findFirst({
+      where: and(eq(s.referralCodes.ambassadorId, profile.id), eq(s.referralCodes.status, "active")),
+    }),
+  ]);
+  if (!user?.email) return false;
+  await sendAmbassadorApprovedEmail({
+    to: user.email,
+    name: user.displayName,
+    code: code?.code ?? null,
+    rateBps: profile.commissionBps ?? org?.defaultCommissionBps ?? 1000,
+  });
+  return true;
 }
 
 export async function setAmbassadorStatus(profileId: string, status: "approved" | "suspended") {
@@ -271,7 +297,12 @@ export async function setAmbassadorStatus(profileId: string, status: "approved" 
         : { status }
     )
     .where(eq(s.ambassadorProfiles.id, profileId));
-  await audit(staff, `ambassador.${status}`, "ambassador_profile", profileId, { status: profile.status }, { status });
+  // Welcome email on the transition into approved (not on re-saves)
+  const emailed =
+    status === "approved" && profile.status !== "approved"
+      ? await notifyAmbassadorApproved(profileId).catch(() => false)
+      : undefined;
+  await audit(staff, `ambassador.${status}`, "ambassador_profile", profileId, { status: profile.status }, { status, ...(emailed !== undefined && { emailed }) });
   revalidatePath("/ambassadors");
 }
 

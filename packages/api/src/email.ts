@@ -268,6 +268,66 @@ export async function sendLoginCode(to: string, code: string, portalLabel: strin
   return deliver(to, subject, html, text);
 }
 
+/* ---------------- Ambassador approved ---------------- */
+
+const AMBASSADOR_PORTAL_URL = "https://admin.wiievent.com/ambassador";
+
+/**
+ * "You're in" — sent the moment an ambassador application is approved
+ * (or a direct invite is created). Wii design: ember eyebrow, Archivo-style
+ * black heading on the void, bone card, code highlighted like a login code.
+ */
+export async function sendAmbassadorApprovedEmail(args: {
+  to: string;
+  name?: string | null;
+  /** Personal referral code, when one already exists. */
+  code?: string | null;
+  /** Resolved commission rate in basis points (e.g. 1000 = 10%). */
+  rateBps: number;
+}) {
+  const first = (args.name ?? "").trim().split(/\s+/)[0] || null;
+  const rate = `${(args.rateBps / 100).toFixed(args.rateBps % 100 === 0 ? 0 : 1)}%`;
+  const subject = "You're in — welcome to the Wii Ambassadors";
+  const codeBlock = args.code
+    ? `<div style="margin-top:18px;background:#0b0b0e;border-radius:10px;padding:18px;text-align:center;">
+        <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:3px;color:#ff9e7a;text-transform:uppercase;">Your code</div>
+        <div style="font-family:'Courier New',monospace;font-size:28px;font-weight:bold;letter-spacing:6px;color:#fbf8f1;margin-top:6px;">${args.code}</div>
+      </div>`
+    : "";
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+<body style="margin:0;background:#0b0b0e;padding:32px 16px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+    <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;">
+      <tr><td style="padding-bottom:16px;">
+        <div style="font-family:'Courier New',monospace;font-size:11px;letter-spacing:4px;color:#ff4d1f;text-transform:uppercase;">Wii Ambassadors</div>
+        <div style="font-family:Arial Black,Arial,sans-serif;font-size:26px;font-weight:900;color:#fbf8f1;text-transform:uppercase;margin-top:6px;">You're in${first ? `, ${first}` : ""}</div>
+      </td></tr>
+      <tr><td style="background:#fbf8f1;border-radius:14px;padding:24px;">
+        <div style="font-family:Arial,sans-serif;font-size:14px;color:#3a3a45;line-height:1.6;">
+          The team reviewed your application — welcome to the crew.<br><br>
+          Your link, your crowd, your commission: you earn <b style="color:#0b0b0e;">${rate}</b> on
+          every ticket bought through your personal link, tracked live in your dashboard.
+          Commissions unlock after each event.
+        </div>
+        ${codeBlock}
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin-top:20px;">
+          <tr><td align="center" style="border-radius:10px;background-color:#ff4d1f;">
+            <a href="${AMBASSADOR_PORTAL_URL}" style="display:block;padding:15px 22px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;color:#0b0b0e;text-decoration:none;text-transform:uppercase;letter-spacing:1px;">Open your dashboard →</a>
+          </td></tr></table>
+        <div style="font-family:Arial,sans-serif;font-size:12px;color:#6a6a77;line-height:1.6;margin-top:16px;">
+          Sign in with this email address — a one-time code, no passwords. Inside you'll find your
+          ${args.code ? "link, printable flyer" : "personal code and link once assigned, your printable flyer"},
+          live sales, and payout settings (IBAN / Revolut / PayPal).
+        </div>
+      </td></tr>
+      <tr><td style="padding-top:16px;font-family:'Courier New',monospace;font-size:10px;color:#9a9aa6;">Wii Event Malta — Malta After Dark</td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`;
+  const text = `Wii Ambassadors — you're in${first ? `, ${first}` : ""}!\n\nYou earn ${rate} on every ticket bought through your personal link.${args.code ? `\nYour code: ${args.code}` : ""}\n\nOpen your dashboard: ${AMBASSADOR_PORTAL_URL}\nSign in with this email address — a one-time code, no passwords.`;
+  return deliver(args.to, subject, html, text);
+}
+
 /* ---------------- Generic action email (transfers, applications) ---------------- */
 
 export async function sendActionEmail(args: {
