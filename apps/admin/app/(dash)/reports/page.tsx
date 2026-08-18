@@ -15,7 +15,7 @@ export default async function ReportsPage() {
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Referral reports</h1>
         <span className="label">
           avg conversion {avgConversion}% · unpaid balance {eur(totalUnpaid)}

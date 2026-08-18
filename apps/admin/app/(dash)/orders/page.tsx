@@ -45,9 +45,9 @@ export default async function OrdersPage() {
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Orders</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="label">last {rows.length}</span>
           <form action={sweepOrdersAction}>
             <button className="btn-admin" title="Expire overdue draft/pending orders and release their holds">

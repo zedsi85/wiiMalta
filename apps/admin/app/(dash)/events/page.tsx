@@ -52,7 +52,7 @@ export default async function EventsPage() {
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Events</h1>
         <div className="flex items-center gap-4">
           <span className="label">{rows.length} total</span>

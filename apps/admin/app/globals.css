@@ -41,4 +41,37 @@ body {
   .pill {
     @apply inline-block rounded-pill border border-slate px-2 py-0.5 font-mono text-[0.625rem] uppercase tracking-[0.14em];
   }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Phone ── */
+@media (max-width: 767px) {
+  /* Wide tables become their own horizontal scroll container; the page never
+     scrolls sideways. Column layout inside is preserved. */
+  .table-admin {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-admin td,
+  .table-admin th {
+    white-space: nowrap;
+  }
+  .card {
+    @apply p-4;
+  }
+  /* Comfortable touch targets */
+  .btn-admin,
+  .btn-admin-primary {
+    @apply min-h-[40px] px-3.5;
+  }
+  .input-admin,
+  select.input-admin {
+    @apply min-h-[42px] text-base; /* ≥16px stops iOS zoom-on-focus */
+  }
 }

@@ -36,7 +36,7 @@ export default async function EventAnalyticsPage({ params }: { params: { id: str
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Link href="/events" className="font-mono text-xs text-fog hover:text-ember">
               Events /
             </Link>
@@ -95,7 +95,7 @@ export default async function EventAnalyticsPage({ params }: { params: { id: str
         <section className="card">
           <h2 className="label mb-4">Referrals</h2>
           {a.referral.topAmbassador ? (
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <div className="label !text-[0.5625rem]">Top ambassador</div>
                 <div className="mt-1 text-xl font-bold">{a.referral.topAmbassador.name}</div>
