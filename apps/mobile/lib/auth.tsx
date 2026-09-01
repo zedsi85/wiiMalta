@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Api, getToken, setToken, ApiError } from "./api";
+import { clearWalletCache } from "./persist";
 
 /**
  * Session context — restores the SecureStore session on launch, validates it
@@ -23,6 +25,7 @@ const AuthContext = createContext<AuthState>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const qc = useQueryClient();
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -60,7 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await setToken(null);
     setEmail(null);
-  }, []);
+    // Drop the offline wallet so a handed-off device can't show prior tickets.
+    qc.removeQueries();
+    await clearWalletCache();
+  }, [qc]);
 
   return (
     <AuthContext.Provider value={{ email, loading, requestCode, verifyCode, logout }}>

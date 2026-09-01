@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
@@ -10,6 +10,7 @@ import { AuthProvider } from "@/lib/auth";
 import { c } from "@/lib/theme";
 import { OfflineBanner } from "@/components/offline";
 import { useNotificationDeepLinks } from "@/lib/push";
+import { restoreWalletCache, attachWalletPersister } from "@/lib/persist";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -42,10 +43,22 @@ export default function RootLayout() {
     SpaceMono_400Regular,
     SpaceMono_700Bold,
   });
+  // Rehydrate the offline wallet cache before first paint, then keep it in sync.
+  const [cacheReady, setCacheReady] = useState(false);
   useEffect(() => {
-    if (loaded) void SplashScreen.hideAsync();
-  }, [loaded]);
-  if (!loaded) return null;
+    let detach: (() => void) | undefined;
+    (async () => {
+      await restoreWalletCache(queryClient);
+      detach = attachWalletPersister(queryClient);
+      setCacheReady(true);
+    })();
+    return () => detach?.();
+  }, []);
+
+  useEffect(() => {
+    if (loaded && cacheReady) void SplashScreen.hideAsync();
+  }, [loaded, cacheReady]);
+  if (!loaded || !cacheReady) return null;
 
   return (
     <QueryClientProvider client={queryClient}>

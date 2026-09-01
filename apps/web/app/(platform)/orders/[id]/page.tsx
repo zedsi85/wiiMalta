@@ -7,6 +7,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 import { getOrderView } from "@wii/api";
 import { PendingRefresher } from "./PendingRefresher";
+import { QrRefresher } from "@/components/ui/QrRefresher";
 
 export const dynamic = "force-dynamic";
 
@@ -96,9 +97,13 @@ export default async function OrderPage({
                 </div>
               ))}
             </div>
-            <p style={{ marginTop: 24, fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--text-faint)" }}>
-              QR codes refresh on reload and expire after a few minutes — screenshots won&apos;t scan at the door.
-            </p>
+            {view.tickets.some((t) => t.status === "active") ? (
+              <QrRefresher />
+            ) : (
+              <p style={{ marginTop: 24, fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--text-faint)" }}>
+                Screenshots won&apos;t scan at the door — open this page live.
+              </p>
+            )}
           </>
         )}
 

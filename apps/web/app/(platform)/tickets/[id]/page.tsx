@@ -6,6 +6,7 @@ import { MoodSetter } from "@/components/layout/MoodSetter";
 import { Section } from "@/components/ui/Section";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
+import { QrRefresher } from "@/components/ui/QrRefresher";
 
 export const dynamic = "force-dynamic";
 
@@ -69,9 +70,13 @@ export default async function TicketPage({
             </div>
           </div>
         </div>
-        <p style={{ marginTop: 18, fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--text-faint)" }}>
-          QR refreshes on reload · screenshots won&apos;t scan at the door.
-        </p>
+        {t.status === "active" ? (
+          <QrRefresher />
+        ) : (
+          <p style={{ marginTop: 18, fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--text-faint)" }}>
+            Screenshots won&apos;t scan at the door — open this page live.
+          </p>
+        )}
         <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 28 }}>
           <Button href="/events" variant="secondary">Browse events</Button>
           <Button href="/account" variant="primary">My tickets</Button>
