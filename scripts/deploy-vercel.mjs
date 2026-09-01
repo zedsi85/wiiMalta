@@ -63,7 +63,7 @@ async function ensureProject(name, rootDirectory) {
   }
   await api(`/v9/projects/${project.id}`, {
     method: "PATCH",
-    body: JSON.stringify({ framework: "nextjs", rootDirectory }),
+    body: JSON.stringify({ framework: "nextjs", rootDirectory, serverlessFunctionRegion: "fra1" }),
   });
   return project;
 }

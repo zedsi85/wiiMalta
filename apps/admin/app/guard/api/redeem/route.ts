@@ -27,6 +27,12 @@ export async function POST(req: NextRequest) {
 
   const events = await guardAssignedEvents(guard.userId, { seesAll: guard.seesAllEvents });
   const allowed = events.map((e) => e.eventId);
+  // Scope guard: a guard may only redeem for events they are assigned to.
+  // (Mirrors the peek/verify route; without this, restrictToEventIds could be
+  // set to an arbitrary event the guard has no membership on.)
+  if (body.eventId && !allowed.includes(body.eventId)) {
+    return NextResponse.json({ error: "event_not_assigned" }, { status: 403 });
+  }
   const gate = body.gate ?? events.find((e) => e.eventId === body.eventId)?.gate ?? null;
 
   const result = await redeemTicket({

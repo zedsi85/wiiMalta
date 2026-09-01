@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyLoginChallenge, signAccountSession } from "@wii/core";
+import { rateLimit } from "@wii/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,8 +14,17 @@ export async function POST(req: NextRequest) {
   }
   const email = body.email?.trim().toLowerCase();
   const code = body.code?.trim();
+  if (!email || !code) return NextResponse.json({ ok: false, error: "bad_code" }, { status: 401 });
+
+  // Bound brute force: the challenge is stateless, so this shared counter is the
+  // only cap on guesses. 8 tries per email per 15-min window (the code's life).
+  const { allowed } = await rateLimit(`verify:${email}`, 8, 15 * 60_000);
+  if (!allowed) {
+    return NextResponse.json({ ok: false, error: "too_many_attempts" }, { status: 429 });
+  }
+
   const challenge = req.cookies.get("wii_login_challenge")?.value ?? "";
-  if (!email || !code || !verifyLoginChallenge(email, code, challenge, process.env.ORDER_LINK_SECRET!)) {
+  if (!verifyLoginChallenge(email, code, challenge, process.env.ORDER_LINK_SECRET!)) {
     return NextResponse.json({ ok: false, error: "bad_code" }, { status: 401 });
   }
   const session = signAccountSession(email, process.env.ORDER_LINK_SECRET!);

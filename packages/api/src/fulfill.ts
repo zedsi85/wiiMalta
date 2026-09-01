@@ -26,6 +26,12 @@ export async function finalizePaidOrder(args: {
     if (order.status === "paid" || order.status === "partially_refunded" || order.status === "refunded") {
       return { outcome: "already_paid" as const };
     }
+    // Only these states may become paid. A payment landing on a cancelled order
+    // (buyer cancelled then paid a stale checkout) must be refunded, never
+    // ticketed — surface it as refund_required rather than minting on cancelled.
+    if (order.status !== "draft" && order.status !== "pending_payment" && order.status !== "expired") {
+      return { outcome: "refund_required" as const };
+    }
 
     const lines = await tx.select().from(s.orderLines).where(eq(s.orderLines.orderId, order.id));
     const event = (await tx.select().from(s.events).where(eq(s.events.id, order.eventId)))[0];
@@ -207,35 +213,64 @@ export async function refundOrderFully(args: {
   initiatedByUserId: string;
 }) {
   const d = db();
-  const order = await d.query.orders.findFirst({ where: eq(s.orders.id, args.orderId) });
-  if (!order) throw new Error("order not found");
-  if (order.status !== "paid" && order.status !== "partially_refunded") {
-    throw new Error(`cannot refund order in status ${order.status}`);
-  }
-  const payment = await d.query.payments.findFirst({
-    where: and(eq(s.payments.orderId, order.id), eq(s.payments.status, "succeeded")),
-  });
-  if (!payment) throw new Error("no succeeded payment on order");
 
-  const amount = order.totalCents - order.refundedCents;
-  const provider = paymentProvider();
-  const { providerRefundId } = await provider.refund({
-    providerOrderId: payment.providerOrderId,
-    amountCents: amount,
-    currency: order.currency,
-    reason: args.reason,
+  // Claim the refund atomically: lock the order, re-check status, and abort if
+  // a refund is already pending/succeeded — so two concurrent callers can't
+  // both fire a provider refund (double money-out). The provider call happens
+  // only after this claim commits.
+  const claim = await d.transaction(async (tx) => {
+    const [order] = await tx.select().from(s.orders).where(eq(s.orders.id, args.orderId)).for("update");
+    if (!order) throw new Error("order not found");
+    if (order.status !== "paid" && order.status !== "partially_refunded") {
+      throw new Error(`cannot refund order in status ${order.status}`);
+    }
+    const existing = await tx
+      .select()
+      .from(s.refunds)
+      .where(eq(s.refunds.orderId, order.id));
+    if (existing.some((r) => r.status === "pending" || r.status === "succeeded")) {
+      throw new Error("refund already in progress or completed for this order");
+    }
+    const payment = await tx.query.payments.findFirst({
+      where: and(eq(s.payments.orderId, order.id), eq(s.payments.status, "succeeded")),
+    });
+    if (!payment) throw new Error("no succeeded payment on order");
+    const amount = order.totalCents - order.refundedCents;
+    const [pending] = await tx
+      .insert(s.refunds)
+      .values({
+        orderId: order.id,
+        paymentId: payment.id,
+        amountCents: amount,
+        reason: args.reason,
+        status: "pending",
+        initiatedBy: args.initiatedByUserId,
+      })
+      .returning();
+    return { order, payment, amount, refundId: pending.id };
   });
+
+  const { order, payment, amount } = claim;
+  const provider = paymentProvider();
+  let providerRefundId: string;
+  try {
+    ({ providerRefundId } = await provider.refund({
+      providerOrderId: payment.providerOrderId,
+      amountCents: amount,
+      currency: order.currency,
+      reason: args.reason,
+    }));
+  } catch (e) {
+    // Release the claim so the operator can retry (no money moved).
+    await d.update(s.refunds).set({ status: "failed" }).where(eq(s.refunds.id, claim.refundId));
+    throw e;
+  }
 
   await d.transaction(async (tx) => {
-    await tx.insert(s.refunds).values({
-      orderId: order.id,
-      paymentId: payment.id,
-      providerRefundId,
-      amountCents: amount,
-      reason: args.reason,
-      status: "succeeded",
-      initiatedBy: args.initiatedByUserId,
-    });
+    await tx
+      .update(s.refunds)
+      .set({ providerRefundId, status: "succeeded" })
+      .where(eq(s.refunds.id, claim.refundId));
     await tx
       .update(s.orders)
       .set({
@@ -301,4 +336,82 @@ export async function refundOrderFully(args: {
         .where(eq(s.commissions.id, commission.id));
     }
   });
+}
+
+/**
+ * Money captured for an order we can't fulfill (holds lapsed and stock resold,
+ * or a payment landed on a cancelled order) — refund it and record loudly.
+ * Idempotent: a second call after a successful refund is a no-op. No tickets
+ * exist to revoke here (this order never reached `paid`).
+ */
+export async function refundUnfulfilledOrder(args: {
+  orderId: string;
+  providerOrderId: string;
+  reason: string;
+}): Promise<{ refunded: boolean; error?: string }> {
+  const d = db();
+  const payment = await d.query.payments.findFirst({
+    where: and(eq(s.payments.orderId, args.orderId), eq(s.payments.providerOrderId, args.providerOrderId)),
+  });
+  if (!payment) return { refunded: false, error: "payment_not_found" };
+
+  // Idempotency: don't double-refund the same provider order.
+  const existing = await d.query.refunds.findFirst({ where: eq(s.refunds.orderId, args.orderId) });
+  if (existing && (existing.status === "pending" || existing.status === "succeeded")) {
+    return { refunded: true };
+  }
+
+  const order = await d.query.orders.findFirst({ where: eq(s.orders.id, args.orderId) });
+  if (!order) return { refunded: false, error: "order_not_found" };
+  // Resolve a real user id for the refund's initiatedBy (FK → users): the
+  // buyer if known, else the organizer's owner as the system actor.
+  const systemActorId =
+    order.userId ??
+    (await d.query.users.findFirst({ where: eq(s.users.email, order.email) }))?.id ??
+    (await d.query.organizerMembers.findFirst({ where: eq(s.organizerMembers.organizerId, order.organizerId) }))?.userId;
+  const amount = payment.amountCents;
+  if (amount <= 0) {
+    // Nothing to refund (comp/€0) — just mark the order cancelled.
+    await d.update(s.orders).set({ status: "cancelled", updatedAt: new Date() }).where(eq(s.orders.id, args.orderId));
+    return { refunded: true };
+  }
+
+  const provider = paymentProvider();
+  try {
+    const { providerRefundId } = await provider.refund({
+      providerOrderId: args.providerOrderId,
+      amountCents: amount,
+      currency: order.currency,
+      reason: args.reason,
+    });
+    await d.transaction(async (tx) => {
+      await tx.insert(s.refunds).values({
+        orderId: order.id,
+        paymentId: payment.id,
+        providerRefundId,
+        amountCents: amount,
+        reason: args.reason,
+        status: "succeeded",
+        initiatedBy: systemActorId!, // buyer, or organizer owner as system actor
+      });
+      await tx.update(s.payments).set({ status: "succeeded", updatedAt: new Date() }).where(eq(s.payments.id, payment.id));
+      await tx.update(s.orders).set({ status: "cancelled", refundedCents: amount, updatedAt: new Date() }).where(eq(s.orders.id, order.id));
+      await tx.insert(s.auditLog).values({
+        action: "order.auto_refund_unfulfilled",
+        entityType: "order",
+        entityId: order.id,
+        after: { amount, providerRefundId, reason: args.reason },
+      });
+    });
+    return { refunded: true };
+  } catch (e) {
+    console.error("[refundUnfulfilledOrder] provider refund failed:", e);
+    await d.insert(s.auditLog).values({
+      action: "order.auto_refund_FAILED",
+      entityType: "order",
+      entityId: order.id,
+      after: { amount, error: String(e).slice(0, 300), reason: args.reason },
+    });
+    return { refunded: false, error: String(e).slice(0, 200) };
+  }
 }

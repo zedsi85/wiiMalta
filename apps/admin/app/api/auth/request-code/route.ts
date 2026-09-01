@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
-import { sendLoginCode } from "@wii/api";
+import { sendLoginCode, rateLimit } from "@wii/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,8 +17,6 @@ export const dynamic = "force-dynamic";
  * provisioned users (any role/profile) get emails; responses never reveal
  * whether an account exists.
  */
-const recent = new Map<string, number>(); // per-instance soft rate limit
-
 export async function POST(req: NextRequest) {
   let body: { email?: string; portal?: string };
   try {
@@ -32,9 +30,10 @@ export async function POST(req: NextRequest) {
   }
   const generic = NextResponse.json({ ok: true }); // never leak account existence
 
-  const last = recent.get(email) ?? 0;
-  if (Date.now() - last < 55_000) return generic;
-  recent.set(email, Date.now());
+  // Shared anti-bombing cap (5 sends per email per 15 min). Protects the
+  // event-day door sign-in flow's shared Brevo budget too.
+  const { allowed } = await rateLimit(`admin-code:${email}`, 5, 15 * 60_000);
+  if (!allowed) return generic;
 
   const d = db();
   const user = await d.query.users.findFirst({ where: eq(s.users.email, email) });

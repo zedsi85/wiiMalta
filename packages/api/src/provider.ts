@@ -31,6 +31,13 @@ export interface PaymentProvider {
     currency: string;
     reason: string;
   }): Promise<{ providerRefundId: string }>;
+  /**
+   * Re-fetch client token + hosted checkout URL for an already-created order,
+   * so a payment retry reuses the same provider order instead of creating a
+   * second one (avoids double-charge exposure). Returns null if unsupported
+   * or the order can't be retrieved.
+   */
+  retrieveOrder?(providerOrderId: string): Promise<{ clientToken: string; checkoutUrl?: string } | null>;
 }
 
 /* ---------------- Revolut ---------------- */
@@ -38,17 +45,21 @@ export interface PaymentProvider {
 const REVOLUT_API_BASE = process.env.REVOLUT_API_BASE ?? "https://sandbox-merchant.revolut.com";
 const REVOLUT_API_VERSION = process.env.REVOLUT_API_VERSION ?? "2024-09-01";
 
-async function revolutFetch(path: string, body: unknown): Promise<Record<string, unknown>> {
+async function revolutFetch(
+  path: string,
+  body: unknown,
+  method: "POST" | "GET" = "POST"
+): Promise<Record<string, unknown>> {
   const key = process.env.REVOLUT_SECRET_KEY;
   if (!key) throw new Error("REVOLUT_SECRET_KEY not configured");
   const res = await fetch(`${REVOLUT_API_BASE}${path}`, {
-    method: "POST",
+    method,
     headers: {
       Authorization: `Bearer ${key}`,
       "Content-Type": "application/json",
       "Revolut-Api-Version": REVOLUT_API_VERSION,
     },
-    body: JSON.stringify(body),
+    ...(method === "POST" ? { body: JSON.stringify(body) } : {}),
   });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
@@ -81,6 +92,16 @@ const revolut: PaymentProvider = {
       description: reason,
     });
     return { providerRefundId: (json.id ?? `rf_${providerOrderId}`) as string };
+  },
+  async retrieveOrder(providerOrderId) {
+    try {
+      const json = await revolutFetch(`/api/orders/${providerOrderId}`, null, "GET");
+      const token = (json.token ?? json.public_id) as string | undefined;
+      if (!token) return null;
+      return { clientToken: token, checkoutUrl: json.checkout_url as string | undefined };
+    } catch {
+      return null; // caller falls back to a fresh order
+    }
   },
 };
 

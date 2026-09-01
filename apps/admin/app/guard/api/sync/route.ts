@@ -36,6 +36,12 @@ export async function POST(req: NextRequest) {
 
   const results = [];
   for (const scan of scans) {
+    // Scope guard: never redeem for an event this guard isn't assigned to,
+    // even from the offline queue (a tampered queue could carry any eventId).
+    if (scan.eventId && !allowed.includes(scan.eventId)) {
+      results.push({ clientScanId: scan.clientScanId, ok: false, reason: "event_not_assigned" });
+      continue;
+    }
     if (!scan.code || !scan.clientScanId) {
       results.push({ clientScanId: scan.clientScanId ?? null, ok: false, reason: "invalid" });
       continue;

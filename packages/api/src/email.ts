@@ -1,5 +1,5 @@
 import "server-only";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
 import { signOrderKey } from "@wii/core";
 
@@ -163,12 +163,23 @@ async function deliver(to: string, subject: string, html: string, text: string):
 }
 
 /** Send (or resend) the ticket email for a paid order. Never throws into payment flows. */
-export async function sendOrderTickets(orderId: string): Promise<{ sent: boolean; provider?: string; error?: string }> {
+export async function sendOrderTickets(
+  orderId: string,
+  opts?: { force?: boolean }
+): Promise<{ sent: boolean; provider?: string; error?: string }> {
   try {
     const d = db();
     const order = await d.query.orders.findFirst({ where: eq(s.orders.id, orderId) });
     if (!order || (order.status !== "paid" && order.status !== "partially_refunded")) {
       return { sent: false, error: "order not in a deliverable state" };
+    }
+    // Idempotency: don't re-send on webhook redelivery / retries unless forced
+    // (admin "resend"). Makes the webhook safe to call on already_paid too.
+    if (!opts?.force) {
+      const priorSend = await d.query.auditLog.findFirst({
+        where: and(eq(s.auditLog.entityType, "order"), eq(s.auditLog.entityId, orderId), eq(s.auditLog.action, "order.tickets_emailed")),
+      });
+      if (priorSend) return { sent: false, error: "already_emailed" };
     }
     const [event, lines] = await Promise.all([
       d.query.events.findFirst({ where: eq(s.events.id, order.eventId) }),

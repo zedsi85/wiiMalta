@@ -151,15 +151,20 @@ export default function CheckoutPage() {
   const pollUntilPaid = useCallback(async () => {
     if (!draft) return;
     setPaidRedirect(true);
+    setError(null);
     for (let i = 0; i < 40; i++) {
-      const res = await fetch(`/api/orders/${draft.orderId}?key=${draft.key}`, { cache: "no-store" });
-      if (res.ok) {
-        const view = await res.json();
-        if (view.status === "paid") {
-          router.push(`/orders/${draft.orderId}?key=${draft.key}`);
-          return;
+      try {
+        const res = await fetch(`/api/orders/${draft.orderId}?key=${draft.key}`, { cache: "no-store" });
+        if (res.ok) {
+          const view = await res.json();
+          if (view.status === "paid") {
+            router.push(`/orders/${draft.orderId}?key=${draft.key}`);
+            return;
+          }
+          if (view.status === "expired" || view.status === "refunded") break;
         }
-        if (view.status === "expired" || view.status === "refunded") break;
+      } catch {
+        /* transient network error — the buyer may have paid; keep polling */
       }
       await new Promise((r) => setTimeout(r, 1500));
     }
@@ -325,8 +330,8 @@ export default function CheckoutPage() {
                     <div style={{ padding: "14px 16px", border: "1px solid var(--border-soft)", borderRadius: "var(--radius-sm)", background: "rgba(46,107,255,0.06)", fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--azure-300)" }}>
                       ◉ Mock payment mode (local dev) — no money moves. Set PAYMENT_PROVIDER=revolut to use the Revolut sandbox.
                     </div>
-                    <Button variant="primary" disabled={busy || paidRedirect} onClick={mockPay}>
-                      {paidRedirect ? "Confirming…" : `Pay ${formatEuro(total)} (simulated)`}
+                    <Button variant="primary" disabled={busy || paidRedirect || lapsed} onClick={mockPay}>
+                      {lapsed ? "Reservation lapsed" : paidRedirect ? "Confirming…" : `Pay ${formatEuro(total)} (simulated)`}
                     </Button>
                   </>
                 ) : (
@@ -337,7 +342,7 @@ export default function CheckoutPage() {
                     <div id="revolut-pay-target" />
                     <Button
                       variant="primary"
-                      disabled={paidRedirect}
+                      disabled={paidRedirect || lapsed}
                       onClick={() =>
                         rcRef.current?.payWithPopup({
                           email,
@@ -347,7 +352,7 @@ export default function CheckoutPage() {
                         })
                       }
                     >
-                      {paidRedirect ? "Confirming…" : `Pay ${formatEuro(total)} by card`}
+                      {lapsed ? "Reservation lapsed" : paidRedirect ? "Confirming…" : `Pay ${formatEuro(total)} by card`}
                     </Button>
                     <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--text-faint)" }}>
                       Payments are processed by Revolut. Card data never touches our servers.

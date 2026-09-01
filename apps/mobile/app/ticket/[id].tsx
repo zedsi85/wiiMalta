@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -17,7 +17,6 @@ import { Pill, Screen } from "@/components/ui";
  */
 export default function TicketScreen() {
   const { id, k } = useLocalSearchParams<{ id: string; k: string }>();
-  const [restoreBrightness, setRestoreBrightness] = useState<number | null>(null);
 
   const { data, isError, dataUpdatedAt } = useQuery({
     queryKey: ["ticket-qr", id],
@@ -28,15 +27,18 @@ export default function TicketScreen() {
     staleTime: 0,
   });
 
-  // Max brightness while the QR is on screen (restore on exit)
+  // Max brightness while the QR is on screen (restore on exit).
+  // The prior value is held in a ref, not state: the cleanup closure runs once
+  // with the values from mount, so a state variable would always read its
+  // initial null and never restore — leaving the phone stuck at full brightness.
+  const priorBrightness = useRef<number | null>(null);
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         const { status } = await Brightness.requestPermissionsAsync();
         if (status === "granted" && mounted) {
-          const current = await Brightness.getBrightnessAsync();
-          setRestoreBrightness(current);
+          priorBrightness.current = await Brightness.getBrightnessAsync();
           await Brightness.setBrightnessAsync(1);
         }
       } catch {
@@ -45,9 +47,8 @@ export default function TicketScreen() {
     })();
     return () => {
       mounted = false;
-      if (restoreBrightness !== null) void Brightness.setBrightnessAsync(restoreBrightness);
+      if (priorBrightness.current !== null) void Brightness.setBrightnessAsync(priorBrightness.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stale = data && Date.now() > data.exp;

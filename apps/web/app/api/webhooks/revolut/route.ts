@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
-import { finalizePaidOrder, sendOrderTickets, pushToUserEmail, getOrderView } from "@wii/api";
+import { finalizePaidOrder, sendOrderTickets, pushToUserEmail, getOrderView, refundUnfulfilledOrder } from "@wii/api";
 
 export const runtime = "nodejs";
 
@@ -41,21 +41,32 @@ export async function POST(req: NextRequest) {
   }
   const eventType = payload.event ?? "unknown";
   const providerOrderId = payload.order_id ?? "";
-  const providerEventId = `${eventType}:${providerOrderId}:${timestamp}`;
+  // Stable dedup key (no timestamp): Revolut redeliveries of the SAME event
+  // share it, so a delivery that failed after finalize is reprocessed (finalize
+  // + email are idempotent) rather than short-circuited before the email sends.
+  const providerEventId = `${eventType}:${providerOrderId}`;
 
   const d = db();
-  // Dedup — replays ack 200 without reprocessing
-  const inserted = await d
-    .insert(s.webhookEvents)
-    .values({
-      provider: "revolut",
-      providerEventId,
-      type: eventType,
-      payload: payload as Record<string, unknown>,
-      status: "received",
-    })
-    .onConflictDoNothing()
-    .returning();
+  const existing = await d.query.webhookEvents.findFirst({
+    where: and(eq(s.webhookEvents.provider, "revolut"), eq(s.webhookEvents.providerEventId, providerEventId)),
+  });
+  // Already fully processed → true replay, ack without reprocessing.
+  if (existing?.status === "processed") return NextResponse.json({ ok: true, dedup: true });
+
+  const inserted = existing
+    ? [existing]
+    : await d
+        .insert(s.webhookEvents)
+        .values({
+          provider: "revolut",
+          providerEventId,
+          type: eventType,
+          payload: payload as Record<string, unknown>,
+          status: "received",
+        })
+        .onConflictDoNothing()
+        .returning();
+  // Lost the insert race to a concurrent delivery — the winner will process it.
   if (inserted.length === 0) return NextResponse.json({ ok: true, dedup: true });
 
   try {
@@ -71,7 +82,10 @@ export async function POST(req: NextRequest) {
           orderId: payment.orderId,
           providerPaymentId: providerOrderId,
         });
-        if (result.outcome === "paid") {
+        // Deliver on first finalize AND on idempotent redelivery — sendOrderTickets
+        // guards its own re-send, so a delivery that crashed post-finalize still
+        // gets the buyer their email on Revolut's retry.
+        if (result.outcome === "paid" || result.outcome === "already_paid") {
           await sendOrderTickets(payment.orderId);
           const view = await getOrderView(payment.orderId);
           if (view) {
@@ -81,6 +95,14 @@ export async function POST(req: NextRequest) {
               data: { url: `/tickets` },
             });
           }
+        } else if (result.outcome === "refund_required") {
+          // Money captured but the order can't be fulfilled (stock resold, or
+          // paid-after-cancel). Auto-refund instead of silently keeping funds.
+          await refundUnfulfilledOrder({
+            orderId: payment.orderId,
+            providerOrderId,
+            reason: "tickets unavailable at payment settlement",
+          });
         }
       }
     }

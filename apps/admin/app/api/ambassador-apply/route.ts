@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema as s } from "@wii/db/client";
-import { sendActionEmail } from "@wii/api";
+import { sendActionEmail, rateLimit } from "@wii/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Public ambassador application → profile status 'applied' (admin approves). */
-const recent = new Map<string, number>();
-
 export async function POST(req: NextRequest) {
   let body: { email?: string; name?: string; instagram?: string; motivation?: string };
   try {
@@ -21,9 +19,10 @@ export async function POST(req: NextRequest) {
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !name) {
     return NextResponse.json({ ok: false, error: "name and valid email required" }, { status: 400 });
   }
-  const last = recent.get(email) ?? 0;
-  if (Date.now() - last < 60_000) return NextResponse.json({ ok: true });
-  recent.set(email, Date.now());
+  // Shared cap on this unauthenticated insert+email (3 per email per hour) —
+  // blunts row-creation and admin-inbox spam across instances.
+  const { allowed } = await rateLimit(`apply:${email}`, 3, 60 * 60_000);
+  if (!allowed) return NextResponse.json({ ok: true });
 
   const d = db();
   const org = await d.query.organizers.findFirst({ where: eq(s.organizers.slug, "wii-malta") });

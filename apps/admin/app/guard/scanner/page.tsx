@@ -126,6 +126,7 @@ function ScannerInner() {
   const flushQueue = useCallback(async () => {
     const queue = loadQueue();
     if (queue.length === 0) return;
+    const flushedIds = new Set(queue.map((s) => s.clientScanId));
     try {
       const res = await fetch("/guard/api/sync", {
         method: "POST",
@@ -133,8 +134,12 @@ function ScannerInner() {
         body: JSON.stringify({ scans: queue }),
       });
       if (res.ok) {
-        saveQueue([]);
-        setQueueSize(0);
+        // Remove ONLY the items we just flushed — a scan enqueued during the
+        // in-flight sync must survive (blanket-clearing it would silently drop
+        // an admitted attendee whose ticket then stays reusable).
+        const remaining = loadQueue().filter((s) => !flushedIds.has(s.clientScanId));
+        saveQueue(remaining);
+        setQueueSize(remaining.length);
       }
     } catch {
       /* still offline */

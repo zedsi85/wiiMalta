@@ -71,13 +71,17 @@ export async function createDraftOrder(args: {
       )
     );
   const tierById = new Map(tiers.map((t) => [t.id, t]));
-  for (const l of lines) {
-    const tier = tierById.get(l.tierId);
+  // Aggregate requested qty per tier — the cap is per tier per order, so
+  // duplicate lines for the same tier must not each get their own budget.
+  const qtyByTier = new Map<string, number>();
+  for (const l of lines) qtyByTier.set(l.tierId, (qtyByTier.get(l.tierId) ?? 0) + l.qty);
+  for (const [tierId, qty] of qtyByTier) {
+    const tier = tierById.get(tierId);
     if (!tier || tier.status !== "on_sale") {
-      throw new OrderError("tier_unavailable", `tier not on sale`, { tierId: l.tierId });
+      throw new OrderError("tier_unavailable", `tier not on sale`, { tierId });
     }
-    if (l.qty > tier.maxPerOrder) {
-      throw new OrderError("qty_limit", `max ${tier.maxPerOrder} per order`, { tierId: l.tierId });
+    if (qty > tier.maxPerOrder) {
+      throw new OrderError("qty_limit", `max ${tier.maxPerOrder} per order`, { tierId });
     }
   }
 
@@ -107,7 +111,8 @@ export async function createDraftOrder(args: {
 
   const expiresAt = new Date(Date.now() + HOLD_TTL_MS);
 
-  return await d.transaction(async (tx) => {
+  try {
+    return await d.transaction(async (tx) => {
     // Lock pools (tier pools + event-wide) in id order — H1
     const pools = await tx
       .select()
@@ -197,8 +202,28 @@ export async function createDraftOrder(args: {
       });
     }
 
-    return order;
-  });
+      return order;
+    });
+  } catch (e) {
+    // Idempotency race: a concurrent request with the same key won the insert.
+    // Return the now-existing order instead of surfacing a 500 (the failed
+    // transaction rolled back its own holds, so no inventory leaked).
+    if (isUniqueViolation(e, "orders_idem_uq")) {
+      const winner = await d.query.orders.findFirst({
+        where: eq(s.orders.idempotencyKey, args.idempotencyKey),
+      });
+      if (winner) return winner;
+    }
+    throw e;
+  }
+}
+
+/** Postgres unique-constraint violation detector (code 23505). */
+function isUniqueViolation(e: unknown, constraint?: string): boolean {
+  const err = e as { code?: string; constraint_name?: string; cause?: { code?: string; constraint_name?: string } };
+  const code = err?.code ?? err?.cause?.code;
+  const name = err?.constraint_name ?? err?.cause?.constraint_name;
+  return code === "23505" && (!constraint || !name || name === constraint);
 }
 
 /* ---------------- O2: begin payment ---------------- */
@@ -223,7 +248,7 @@ export async function beginPayment(orderId: string, email: string) {
     where: and(eq(s.payments.orderId, orderId), eq(s.payments.status, "created")),
   });
 
-  if (!payment) {
+  const createFresh = async () => {
     const pOrder = await provider.createOrder({
       amountCents: order.totalCents,
       currency: order.currency,
@@ -231,7 +256,7 @@ export async function beginPayment(orderId: string, email: string) {
       orderId: order.id,
       email,
     });
-    [payment] = await d
+    const [row] = await d
       .insert(s.payments)
       .values({
         orderId: order.id,
@@ -241,15 +266,34 @@ export async function beginPayment(orderId: string, email: string) {
         amountCents: order.totalCents,
       })
       .returning();
-    // Round-trip widget token + hosted checkout URL to the caller (mobile
-    // uses the hosted page; web uses the widget token).
-    (payment as { clientToken?: string; checkoutUrl?: string }).clientToken = pOrder.clientToken;
-    (payment as { clientToken?: string; checkoutUrl?: string }).checkoutUrl = pOrder.checkoutUrl;
+    (row as { clientToken?: string; checkoutUrl?: string }).clientToken = pOrder.clientToken;
+    (row as { clientToken?: string; checkoutUrl?: string }).checkoutUrl = pOrder.checkoutUrl;
+    return row;
+  };
+
+  if (!payment) {
+    payment = await createFresh();
+  } else {
+    // Retry: rehydrate the client token + checkout URL for the SAME provider
+    // order (they're provider-side ephemeral, never stored). If the provider
+    // can't return them, fall back to a fresh order so the buyer isn't stuck.
+    const rehydrated = await provider.retrieveOrder?.(payment.providerOrderId);
+    if (rehydrated) {
+      (payment as { clientToken?: string; checkoutUrl?: string }).clientToken = rehydrated.clientToken;
+      (payment as { clientToken?: string; checkoutUrl?: string }).checkoutUrl = rehydrated.checkoutUrl;
+    } else if (provider.name !== "mock") {
+      // Supersede the un-retrievable provider order so the webhook matcher and
+      // refund's findFirst never pick a dead one.
+      await d.update(s.payments).set({ status: "failed", lastErrorCode: "unretrievable" }).where(eq(s.payments.id, payment.id));
+      payment = await createFresh();
+    }
   }
 
   const newExpiry = new Date(Date.now() + PAYMENT_TTL_MS);
   await d.transaction(async (tx) => {
-    assertTransition("order", order.status, "pending_payment");
+    // Only a draft transitions; a pending_payment retry keeps its state
+    // (assertTransition has no self-loop and would otherwise 500 the retry).
+    if (order.status === "draft") assertTransition("order", order.status, "pending_payment");
     await tx
       .update(s.orders)
       .set({

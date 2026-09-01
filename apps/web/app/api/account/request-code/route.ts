@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomInt } from "crypto";
 import { signLoginChallenge } from "@wii/core";
-import { sendLoginCode } from "@wii/api";
+import { sendLoginCode, rateLimit } from "@wii/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,8 +11,6 @@ export const dynamic = "force-dynamic";
  * in a short-lived signed cookie, so verification is stateless. Any email may
  * request a code (buyers include guests who've never "registered").
  */
-const recent = new Map<string, number>();
-
 export async function POST(req: NextRequest) {
   let body: { email?: string };
   try {
@@ -24,9 +22,10 @@ export async function POST(req: NextRequest) {
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
-  const last = recent.get(email) ?? 0;
-  if (Date.now() - last < 55_000) return NextResponse.json({ ok: true });
-  recent.set(email, Date.now());
+  // Shared cap on code sends per email (anti-bombing): 4 per 15 min. Ack 200
+  // regardless so the endpoint never reveals whether an address was throttled.
+  const { allowed } = await rateLimit(`code:${email}`, 4, 15 * 60_000);
+  if (!allowed) return NextResponse.json({ ok: true });
 
   const code = String(randomInt(100000, 999999));
   const challenge = signLoginChallenge(email, code, process.env.ORDER_LINK_SECRET!);
