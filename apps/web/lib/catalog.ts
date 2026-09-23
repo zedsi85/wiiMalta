@@ -101,7 +101,14 @@ export async function fetchCatalogEvents(): Promise<WiiEvent[]> {
     else eventPool.set(p.eventId, info);
   }
 
-  return events.map((ev) => {
+  // Editorial pin: `media.pinned` on the live content row lifts an event to the
+  // top of every listing (site, homepage feed, mobile API). Date order otherwise.
+  const pinned = new Set(
+    contents.filter((c) => c.isLive && (c.media as { pinned?: boolean } | null)?.pinned).map((c) => c.eventId)
+  );
+  const ordered = [...events].sort((a, b) => Number(pinned.has(b.id)) - Number(pinned.has(a.id)));
+
+  return ordered.map((ev) => {
     const content = contentByEvent.get(ev.id);
     const venue = ev.venueId ? venueById.get(ev.venueId) : undefined;
     const evTiers = tiers.filter((t) => t.eventId === ev.id);
