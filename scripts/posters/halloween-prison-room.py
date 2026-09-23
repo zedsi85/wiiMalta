@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""ROOM-series poster kit (same CSS/fonts/mark/factory as the shipped covers) + the Halloween Prison ROOM
-art, derived from public/venues/old-prison/cell-block.webp. Emits a 1080px page next to this file; render with
-headless Chrome at 1080x1350, then encode to apps/web/public/posters/halloween-prison-room.webp (see git log)."""
+"""Self-contained ROOM-series poster kit (same CSS/fonts/mark/factory as the four shipped covers)
++ the Halloween Prison ROOM art. Emits a 1080px standalone page for screenshotting."""
 import base64, pathlib
 ROOT = pathlib.Path("/Users/zedsi/Desktop/perso/projects/wiiProjects/wiiMalta/websiteAndPlatform/wiiMalta")
 HERE = pathlib.Path(__file__).parent
@@ -13,7 +12,8 @@ CSS = """
 @font-face { font-family: "Space Mono"; src: url(data:font/ttf;base64,%MONO700%) format("truetype"); font-weight: 700; }
 :root { --bone:#FBF8F1; --ash:#6A6A77; --fog:#9A9AA6; --ember:#FF4D1F; --disp:"Archivo Black",sans-serif; --mono:"Space Mono",monospace; }
 html,body { margin:0; background:#000; }
-.poster { position: relative; container-type: inline-size; aspect-ratio: 4/5; width: 1080px; overflow: hidden; background: var(--room-ground); }
+.poster { position: relative; container-type: inline-size; aspect-ratio: 4/5; width: var(--w, 1080px); overflow: hidden; background: var(--room-ground); }
+.poster.story { aspect-ratio: 9/16; }
 .poster .art, .poster .art-front { position: absolute; inset: 0; }
 .poster .art-front { z-index: 3; pointer-events: none; }
 .poster .art svg, .poster .art-front svg { width: 100%; height: 100%; display: block; }
@@ -142,4 +142,6 @@ page = poster("r-prison", "Room Series · Halloween edition", "Wii presents",
     'Lineup — <em>Markelov · Marko Nastic · Mato</em>', "Sat 31 Oct", "Old Prison", "Kordin · Paola",
     ART_PRISON, ART_PRISON_FRONT)
 (HERE / "poster-halloween-prison-room.html").write_text(f'<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head><body>{page}</body></html>')
+(HERE / "poster-prison-story.html").write_text(f'<!doctype html><html><head><meta charset="utf-8"><style>{CSS}</style></head><body>{page.replace("poster r-prison", "poster story r-prison", 1)}</body></html>')
+(HERE / "poster-prison-print.html").write_text(f'<!doctype html><html><head><meta charset="utf-8"><style>{CSS}\n.poster{{--w:2400px}}</style></head><body>{page}</body></html>')
 print("emitted")

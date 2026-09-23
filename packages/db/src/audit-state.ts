@@ -28,11 +28,11 @@ async function main() {
     select p.id, p.tier_id is null as event_wide, p.capacity, p.sold_count, p.held_count,
       coalesce((select sum(h.qty)::int from holds h join orders o on o.id=h.order_id
         where h.status='active' and o.expires_at >= now()
-          and (h.tier_id = p.tier_id or (p.tier_id is null and o.event_id = p.event_id))), 0) as live_hold_qty
+          and h.pool_id = p.id), 0) as live_hold_qty
     from inventory_pools p
     where p.held_count <> coalesce((select sum(h.qty)::int from holds h join orders o on o.id=h.order_id
         where h.status='active' and o.expires_at >= now()
-          and (h.tier_id = p.tier_id or (p.tier_id is null and o.event_id = p.event_id))), 0)`);
+          and h.pool_id = p.id), 0)`);
   await q("sold_count vs actual tickets", sql`
     select p.id, p.tier_id, p.sold_count,
       (select count(*)::int from tickets t where t.tier_id = p.tier_id and t.status in ('issued','active','redeemed')) actual
