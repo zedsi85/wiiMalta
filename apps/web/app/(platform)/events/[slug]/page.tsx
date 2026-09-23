@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventDetail } from "@/components/screens/EventDetail";
 import { fetchCatalogEvent, fetchCatalogEvents, fetchSimilar } from "@/lib/catalog";
+import { editionForSlug } from "@/lib/editions";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -14,9 +15,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const event = await fetchCatalogEvent(params.slug);
   if (!event) return { title: "Event not found" };
+  const dateOnly = event.dateLong.split(" · ")[0];
   return {
-    title: event.title,
+    title: `${event.title} — ${dateOnly}`,
     description: event.blurb,
+    openGraph: { title: `${event.title} — Wii Malta | ${dateOnly}`, description: event.blurb, type: "website" },
+    twitter: { card: "summary_large_image", title: `${event.title} — Wii Malta`, description: event.blurb },
   };
 }
 
@@ -24,6 +28,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
   const event = await fetchCatalogEvent(params.slug);
   if (!event) notFound();
   const similar = await fetchSimilar(params.slug);
+  const edition = editionForSlug(params.slug);
 
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://wiievent.com";
   const jsonLd = {
@@ -59,7 +64,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <EventDetail event={event} similar={similar} />
+      <EventDetail event={event} similar={similar} edition={edition} />
     </>
   );
 }

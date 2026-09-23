@@ -16,6 +16,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import SoundWaveField from "@/components/webgl/SoundWaveField";
 import { setCart, priceValue, formatEuro, type CartLine } from "@/lib/cart";
 import type { WiiEvent } from "@/lib/events";
+import type { Edition } from "@/lib/editions";
+import { EditionSections, EditionStickyCta, EditionMediaView } from "./EditionSections";
 
 /**
  * Wii Event Malta — Event detail screen.
@@ -23,7 +25,16 @@ import type { WiiEvent } from "@/lib/events";
  * lineup, info, map placeholder, FAQ and similar events. Writes the cart and
  * routes to checkout on purchase.
  */
-export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiEvent[] }) {
+export function EventDetail({
+  event,
+  similar,
+  edition,
+}: {
+  event: WiiEvent;
+  similar: WiiEvent[];
+  /** Optional special-edition layer (see lib/editions). Absent → standard page. */
+  edition?: Edition;
+}) {
   const router = useRouter();
   const [qty, setQty] = useState<Record<string, number>>({});
   const [selected, setSelected] = useState<string>(
@@ -41,6 +52,8 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
 
   const total = lines.reduce((sum, l) => sum + priceValue(l.price) * l.qty, 0);
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
+
+  const goToTickets = () => document.getElementById("tickets")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const checkout = () => {
     const effective =
@@ -63,18 +76,19 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
   };
 
   return (
-    <>
+    <div className={edition ? `edition edition-${edition.theme} ed-sticky-pad` : undefined}>
       <MoodSetter mood="ticketing" />
 
       {/* Hero poster */}
       <div style={{ position: "relative", paddingTop: 66 }}>
         <MediaSlot
           tint={event.tint}
-          src={event.posterUrl}
-          alt={`${event.title} poster`}
+          src={edition?.hero.media?.poster ?? edition?.hero.media?.src ?? event.posterUrl}
+          alt={edition?.hero.media?.alt ?? `${event.title} poster`}
           label={`${event.title} — replace with event film`}
-          style={{ minHeight: "min(78vh, 720px)" }}
+          style={{ minHeight: edition ? "min(92vh, 860px)" : "min(78vh, 720px)" }}
         >
+          {edition?.hero.media?.kind === "video" && <EditionMediaView media={edition.hero.media} className="ed-hero-video" />}
           <div
             style={{
               position: "absolute",
@@ -109,6 +123,11 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
               >
                 {event.type} · {event.city}
               </span>
+              {edition && (
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--ember-300)" }}>
+                  {edition.kicker}
+                </span>
+              )}
             </div>
             <h1
               style={{
@@ -136,8 +155,16 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
             >
               <span>{event.dateLong}</span>
               <span>{event.venue}</span>
-              <span>From {event.priceFrom}</span>
+              <span>{edition ? `${event.priceFrom} — ${edition.offer.includes.toLowerCase()}` : `From ${event.priceFrom}`}</span>
             </div>
+            {edition && (
+              <div style={{ marginTop: 26, display: "flex", gap: 22, alignItems: "center", flexWrap: "wrap" }}>
+                <Button variant="primary" onClick={goToTickets} disabled={event.status === "soldout"}>
+                  {event.status === "soldout" ? "Sold out" : edition.hero.cta}
+                </Button>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: "0.1em", color: "var(--smoke)" }}>{edition.hero.tagline}</span>
+              </div>
+            )}
           </div>
         </MediaSlot>
       </div>
@@ -158,7 +185,10 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
               </div>
             </Reveal>
 
-            {/* Lineup */}
+            {edition && <EditionSections edition={edition} event={event} onCta={goToTickets} />}
+
+            {/* Lineup (editions render a typographic line-up of their own) */}
+            {!edition && (
             <div style={{ marginTop: "var(--space-9)", position: "relative" }}>
               <SoundWaveField className="fx-layer" intensity={0.4} opacity={0.22} interactive />
               <div className="page-fx-content">
@@ -170,6 +200,7 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
                 </div>
               </div>
             </div>
+            )}
 
             {/* Info */}
             <div style={{ marginTop: "var(--space-9)" }}>
@@ -249,7 +280,7 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
           </div>
 
           {/* Sticky purchase panel */}
-          <aside className="detail-aside" style={{ position: "sticky", top: 90 }}>
+          <aside id="tickets" className="detail-aside" style={{ position: "sticky", top: 90, scrollMarginTop: 90 }}>
             <div style={{ background: "var(--surface-2)", border: "1px solid var(--border-soft)", borderRadius: "var(--radius-lg)", padding: "22px", boxShadow: "var(--shadow-lg)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
                 <SectionLabel>Tickets</SectionLabel>
@@ -306,7 +337,8 @@ export function EventDetail({ event, similar }: { event: WiiEvent; similar: WiiE
         </Section>
       ) : null}
 
+      {edition && <EditionStickyCta edition={edition} event={event} onCta={goToTickets} />}
       <style>{`@media (max-width: 960px){.detail-grid{grid-template-columns:1fr!important}.detail-aside{position:static!important}}`}</style>
-    </>
+    </div>
   );
 }
