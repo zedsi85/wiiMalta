@@ -88,7 +88,9 @@ export function EventDetail({
           label={`${event.title} — replace with event film`}
           style={{ minHeight: edition ? "min(92vh, 860px)" : "min(78vh, 720px)" }}
         >
-          {edition?.hero.media?.kind === "video" && <EditionMediaView media={edition.hero.media} className="ed-hero-video" />}
+          {edition?.hero.media?.kind === "video" && (
+            <EditionMediaView media={edition.hero.media} className="ed-hero-video" preload="auto" style={{ objectPosition: "50% 35%" }} />
+          )}
           <div
             style={{
               position: "absolute",

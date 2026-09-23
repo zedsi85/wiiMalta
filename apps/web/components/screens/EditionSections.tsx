@@ -14,10 +14,36 @@ import type { WiiEvent } from "@/lib/events";
  */
 
 /** Video (autoplay, muted, inline — poster fallback) or image, cover-fit. */
-export function EditionMediaView({ media, className, style }: { media: EditionMedia; className?: string; style?: React.CSSProperties }) {
+export function EditionMediaView({
+  media,
+  className,
+  style,
+  preload = "metadata",
+}: {
+  media: EditionMedia;
+  className?: string;
+  style?: React.CSSProperties;
+  /** "auto" for the above-the-fold hero; "metadata" for lazy in-page chapters. */
+  preload?: "auto" | "metadata" | "none";
+}) {
   const base: React.CSSProperties = { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" };
   return media.kind === "video" ? (
-    <video className={className} src={media.src} poster={media.poster} autoPlay muted loop playsInline preload="metadata" aria-label={media.alt} style={{ ...base, ...style }} />
+    <video
+      className={className}
+      src={media.src}
+      poster={media.poster}
+      autoPlay
+      muted
+      loop
+      playsInline
+      disablePictureInPicture
+      disableRemotePlayback
+      preload={preload}
+      aria-label={media.alt}
+      // If the source can't load, hide the element so the static image beneath (MediaSlot src) stays visible.
+      onError={(e) => ((e.currentTarget as HTMLVideoElement).style.display = "none")}
+      style={{ ...base, ...style }}
+    />
   ) : (
     // eslint-disable-next-line @next/next/no-img-element
     <img className={className} src={media.src} alt={media.alt} loading="lazy" decoding="async" style={{ ...base, ...style }} />
