@@ -5,8 +5,8 @@
  *
  * Times: 22:00–04:00 Europe/Malta. Note: Malta leaves DST on 25 Oct 2026, so
  * the night is CET (+01:00); the site renders local time, so it shows 22:00.
- * Capacity: the ROOM series' configured 500 is reused — NOT a confirmed venue
- * number; adjust in admin once the prison's licensed capacity is known.
+ * Capacity: 500 — confirmed by the organizer on 2026-10-01 (also set as the
+ * venue's max_capacity).
  */
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -19,7 +19,7 @@ const client = postgres(url, { max: 1, prepare: false });
 const db = drizzle(client, { schema: s });
 
 const SLUG = "halloween-prison-room";
-const CAPACITY = 500; // series default — confirm against venue licence
+const CAPACITY = 500; // confirmed 2026-10-01
 
 async function main() {
   const org = await db.query.organizers.findFirst({ where: eq(s.organizers.slug, "wii-malta") });
