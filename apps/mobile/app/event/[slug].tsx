@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, ScrollView, Share, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -7,7 +7,7 @@ import { API_URL } from "@/lib/api";
 import { c, font, r, tintColors } from "@/lib/theme";
 import { useEvent, useSaved } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
-import { BrandButton, EmptyState, Pill, Screen, Skeleton } from "@/components/ui";
+import { BrandButton, EmptyState, Pill, Screen, Skeleton, posterUri } from "@/components/ui";
 
 export default function EventDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -37,7 +37,13 @@ export default function EventDetailScreen() {
     <Screen>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         {/* Cinematic hero from the event artwork system */}
-        <LinearGradient colors={[c1, c2, c.void]} style={{ paddingTop: 70, paddingHorizontal: 20, paddingBottom: 28, minHeight: 380, justifyContent: "flex-end" }}>
+        <LinearGradient colors={[c1, c2, c.void]} style={{ paddingTop: 70, paddingHorizontal: 20, paddingBottom: 28, minHeight: e.posterUrl ? 460 : 380, justifyContent: "flex-end" }}>
+          {e.posterUrl ? (
+            <>
+              <Image source={{ uri: posterUri(e.posterUrl) }} style={StyleSheet.absoluteFill} resizeMode="cover" accessibilityIgnoresInvertColors />
+              <LinearGradient colors={["rgba(5,5,6,0.15)", "rgba(5,5,6,0.4)", c.void]} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
+            </>
+          ) : null}
           <SafeAreaView edges={["top"]} style={{ position: "absolute", top: 8, left: 12, right: 12, flexDirection: "row", justifyContent: "space-between" }}>
             <Pressable hitSlop={12} onPress={() => router.back()} accessibilityLabel="Back">
               <Text style={{ color: c.bone, fontSize: 24 }}>←</Text>

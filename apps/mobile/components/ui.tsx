@@ -1,14 +1,7 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  type PressableProps,
-  type ViewStyle,
-} from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View, type PressableProps, type ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { API_URL } from "@/lib/api";
 import * as Haptics from "expo-haptics";
 import { c, font, r, tintColors } from "@/lib/theme";
 import type { WiiEvent } from "@/lib/api";
@@ -67,6 +60,9 @@ export function Pill({ text, tone = "default" }: { text: string; tone?: "default
 }
 
 /** Poster card — artwork tint gradient, availability, price. The Wii card, not a generic one. */
+/** Poster paths come relative from the API; resolve against the API host. */
+export const posterUri = (p: string) => (p.startsWith("http") ? p : `${API_URL}${p}`);
+
 export function EventCard({
   event,
   saved,
@@ -91,6 +87,13 @@ export function EventCard({
       style={({ pressed }) => [s.card, wide && { width: "100%" }, pressed && { opacity: 0.92 }]}
     >
       <LinearGradient colors={[c1, c2]} start={{ x: 0, y: 0 }} end={{ x: 0.8, y: 1 }} style={s.cardArt}>
+        {event.posterUrl ? (
+          <>
+            {/* Real poster artwork (same asset the website card uses); tint stays as the fallback */}
+            <Image source={{ uri: posterUri(event.posterUrl) }} style={StyleSheet.absoluteFill} resizeMode="cover" accessibilityIgnoresInvertColors />
+            <LinearGradient colors={["rgba(5,5,6,0.05)", "rgba(5,5,6,0.35)", "rgba(5,5,6,0.9)"]} locations={[0, 0.5, 1]} style={StyleSheet.absoluteFill} />
+          </>
+        ) : null}
         <View style={s.cardTop}>
           <Text style={s.cardKind}>{event.type.toUpperCase()}</Text>
           {onToggleSave && (

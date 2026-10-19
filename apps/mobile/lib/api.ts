@@ -80,6 +80,8 @@ export interface WiiEvent {
   status: string;
   type: string;
   tint: string;
+  /** Poster artwork path (relative to the API host) — tint is the fallback. */
+  posterUrl?: string;
   blurb: string;
   artists: { name: string; role: string; setTime?: string; country?: string; headliner?: boolean }[];
   tiers: TicketTier[];
