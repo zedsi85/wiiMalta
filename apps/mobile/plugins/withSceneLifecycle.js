@@ -57,6 +57,8 @@ module.exports = function withSceneLifecycle(config) {
       const file = path.join(dir, name, "AppDelegate.swift");
       let s = fs.readFileSync(file, "utf8");
       if (!s.includes("import UIKit")) s = s.replace("import Expo\n", "import Expo\nimport UIKit\n");
+      // UIWindowSceneDelegate requires a public `window`; Expo's template declares it internal.
+      s = s.replace(/^(\s*)var window: UIWindow\?/m, "$1public var window: UIWindow?");
       if (!s.includes(MARK)) s += EXT;
       fs.writeFileSync(file, s);
       return cfg;
