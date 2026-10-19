@@ -16,25 +16,53 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.wiimalta.app",
-      "associatedDomains": ["applinks:wiievent.com", "applinks:wii-malta-web.vercel.app"],
-      "infoPlist": { "ITSAppUsesNonExemptEncryption": false }
+      "associatedDomains": [
+        "applinks:wiievent.com",
+        "applinks:wii-malta-web.vercel.app"
+      ],
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "appleTeamId": "JMP446P6AA"
     },
     "android": {
       "package": "com.wiimalta.app",
-      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#0b0b0e" },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0b0b0e"
+      },
       "intentFilters": [
         {
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "wiievent.com", "pathPrefix": "/events" },
-            { "scheme": "https", "host": "wii-malta-web.vercel.app", "pathPrefix": "/events" }
+            {
+              "scheme": "https",
+              "host": "wiievent.com",
+              "pathPrefix": "/events"
+            },
+            {
+              "scheme": "https",
+              "host": "wii-malta-web.vercel.app",
+              "pathPrefix": "/events"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-notifications", "expo-font"],
-    "experiments": { "typedRoutes": false }
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications",
+      "expo-font",
+      "./plugins/withPodfileDeploymentTarget"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
   }
 }
