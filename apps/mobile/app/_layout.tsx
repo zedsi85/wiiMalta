@@ -11,6 +11,7 @@ import { c } from "@/lib/theme";
 import { OfflineBanner } from "@/components/offline";
 import { useNotificationDeepLinks } from "@/lib/push";
 import { restoreWalletCache, attachWalletPersister } from "@/lib/persist";
+import { Intro, shouldPlayIntro } from "@/components/Intro";
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -45,6 +46,8 @@ export default function RootLayout() {
   });
   // Rehydrate the offline wallet cache before first paint, then keep it in sync.
   const [cacheReady, setCacheReady] = useState(false);
+  // Launch moment: plays over the already-rendering app, once per cold start.
+  const [intro, setIntro] = useState(() => shouldPlayIntro());
   useEffect(() => {
     let detach: (() => void) | undefined;
     (async () => {
@@ -71,8 +74,10 @@ export default function RootLayout() {
             headerShown: false,
             contentStyle: { backgroundColor: c.void },
             animation: "fade_from_bottom",
+            animationDuration: 260,
           }}
         />
+        {intro && <Intro onDone={() => setIntro(false)} />}
       </AuthProvider>
     </QueryClientProvider>
   );

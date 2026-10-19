@@ -5,7 +5,8 @@ import { router } from "expo-router";
 import { c, font, r } from "@/lib/theme";
 import { useTickets } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
-import { BrandButton, EmptyState, Eyebrow, H1, Pill, Screen, Skeleton } from "@/components/ui";
+import { BrandButton, EmptyState, ErrorState, Eyebrow, H1, Pill, Screen, Skeleton } from "@/components/ui";
+import { FadeIn, PressScale } from "@/components/motion";
 import type { WalletTicket } from "@/lib/api";
 
 function TicketRow({ t, prominent }: { t: WalletTicket; prominent?: boolean }) {
@@ -14,14 +15,12 @@ function TicketRow({ t, prominent }: { t: WalletTicket; prominent?: boolean }) {
     : "";
   const tone = t.status === "active" ? "go" : t.status === "redeemed" ? "gold" : "default";
   return (
-    <Pressable
+    <PressScale
       onPress={() => router.push({ pathname: "/ticket/[id]", params: { id: t.id, k: t.ticketKey } })}
       accessibilityRole="button"
       accessibilityLabel={`Ticket for ${t.eventTitle}, ${t.tierName}, ${t.status}`}
-      style={({ pressed }) => [
-        { backgroundColor: prominent ? c.charcoal : c.ink, borderRadius: r.lg, padding: 18, borderWidth: 1, borderColor: prominent ? c.ember600 : c.graphite },
-        pressed && { opacity: 0.9 },
-      ]}
+      scaleTo={0.98}
+      style={{ backgroundColor: prominent ? c.charcoal : c.ink, borderRadius: r.lg, padding: 18, borderWidth: 1, borderColor: prominent ? c.ember600 : c.graphite }}
     >
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
         <View style={{ flex: 1, paddingRight: 10 }}>
@@ -41,13 +40,13 @@ function TicketRow({ t, prominent }: { t: WalletTicket; prominent?: boolean }) {
       {prominent && t.status === "active" && (
         <Text style={{ fontFamily: font.mono, fontSize: 11, color: c.ember300, marginTop: 12 }}>TAP FOR QR →</Text>
       )}
-    </Pressable>
+    </PressScale>
   );
 }
 
 export default function TicketsScreen() {
   const { email, loading } = useAuth();
-  const { data: tickets, isLoading, refetch, isRefetching } = useTickets();
+  const { data: tickets, isLoading, isError, refetch, isRefetching } = useTickets();
 
   const { upcoming, past } = useMemo(() => {
     const all = tickets ?? [];
@@ -75,6 +74,8 @@ export default function TicketsScreen() {
             <Skeleton height={120} />
             <Skeleton height={120} />
           </View>
+        ) : isError && !tickets ? (
+          <ErrorState title="Can't load your wallet" body="Your tickets are safe — check your connection and try again." onRetry={() => void refetch()} />
         ) : (
           <FlatList
             data={[
@@ -92,10 +93,12 @@ export default function TicketsScreen() {
                   {item.title}
                 </Text>
               ) : (
-                <TicketRow t={item.t} prominent={item.kind === "up"} />
+                <FadeIn distance={8}>
+                  <TicketRow t={item.t} prominent={item.kind === "up"} />
+                </FadeIn>
               )
             }
-            ListEmptyComponent={<EmptyState title="No tickets yet" body="Your next night out starts on the Discover tab." />}
+            ListEmptyComponent={<EmptyState title="No tickets yet" body="Your next night out starts on the Discover tab." action="Discover nights" onAction={() => router.push("/(tabs)/discover")} />}
           />
         )}
       </SafeAreaView>

@@ -131,7 +131,8 @@ export default function ProfileScreen() {
               }}
             />
           </View>
-          <Row label="My orders (web wallet)" onPress={() => router.push("/(tabs)/tickets")} />
+          <Row label="My tickets & orders" onPress={() => router.push("/(tabs)/tickets")} />
+          <Row label="Help & support" value="email" onPress={() => void Linking.openURL("mailto:zedsi85@gmail.com?subject=Wii%20app%20support")} />
           <Row label="Privacy policy" onPress={() => void Linking.openURL("https://wiievent.com/privacy")} />
           <Row label="Terms of service" onPress={() => void Linking.openURL("https://wiievent.com/terms")} />
           <View style={{ marginTop: 24 }}>
