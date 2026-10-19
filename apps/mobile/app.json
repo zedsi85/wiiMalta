@@ -59,7 +59,8 @@
       "expo-secure-store",
       "expo-notifications",
       "expo-font",
-      "./plugins/withPodfileDeploymentTarget"
+      "./plugins/withPodfileDeploymentTarget",
+      "./plugins/withSceneLifecycle"
     ],
     "experiments": {
       "typedRoutes": false
